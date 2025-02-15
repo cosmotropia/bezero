@@ -1,0 +1,8 @@
+[
+    { "id_categoria": 1, "nombre": "Comida preparada", "descripcion": "Platos listos para comer" },
+    { "id_categoria": 2, "nombre": "Alimentación", "descripcion": "Ingredientes y productos alimenticios" },
+    { "id_categoria": 3, "nombre": "Cuidado personal", "descripcion": "Productos de aseo e higiene" },
+    { "id_categoria": 4, "nombre": "Manufactura", "descripcion": "Materiales y herramientas" },
+    { "id_categoria": 5, "nombre": "Otros", "descripcion": "Productos variados" }
+]
+  

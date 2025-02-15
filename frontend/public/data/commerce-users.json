@@ -1,0 +1,22 @@
+{
+    "comercios": [
+      {
+        "id_comercio": 1,
+        "id_usuario": 1,
+        "nombre": "Aroba Souvakhi Thai",
+        "direccion": "Calle dorval 2525",
+        "ventas_totales": 35,
+        "publicaciones_activas": 4,
+        "calificacion": 4.4,
+        "url_img": "https://via.placeholder.com/150"
+      }
+    ],
+    "usuarios": [
+      {
+        "id": 1,
+        "email": "usuario@example.com",
+        "password": "123456",
+        "isCommerce": true
+      }
+    ]
+  }

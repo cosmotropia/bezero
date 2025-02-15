@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "title": "Box surtido 10",
+    "description": "Box surtido 10 es una selección de productos variados, perfectos para aprovechar excedentes de alta calidad.",
+    "dia_recogida_ini": "mañana",
+    "dia_recogida_end": "mañana",
+    "hr_ini": "18h",
+    "hr_end": "21h",
+    "precio_actual": 4990,
+    "precio_estimado": 7990,
+    "imageUrl": "https://img.freepik.com/free-photo/grocery-shopping-bag-filled-with-vegetables_23-2148278917.jpg?w=740",
+    "disponibilidad": "3 disponibles",
+    "comercio": {
+      "id_comercio": 1,
+      "nombre": "De todo market",
+      "direccion": "Calle falsa 123, Los almendros",
+      "lat": -33.4489,
+      "lng": -70.6693,
+      "rating": 4.4,
+      "reseñas": 32
+    },
+    "recogida": "Recogida entre hoy y mañana de 10h a 18h"
+  },
+  {
+    "id": 2,
+    "title": "Box Pad Thai vegetariano",
+    "description": "Box Pad Thai vegetariano, ingredientes frescos y sabor tradicional tailandés.",
+    "dia_recogida_ini": "mañana",
+    "dia_recogida_end": "mañana",
+    "hr_ini": "12h",
+    "hr_end": "15h",
+    "precio_actual": 5990,
+    "precio_estimado": 8490,
+    "imageUrl": "https://img.freepik.com/free-photo/stir-fry-noodles-with-vegetables-black-background_2829-14216.jpg?w=740",
+    "disponibilidad": "5 disponibles",
+    "comercio": {
+      "id_comercio": 2,
+      "nombre": "Aroba Souvlaki Thai",
+      "direccion": "Calle Primavera 234, Santiago",
+      "lat": -33.4489,
+      "lng": -70.6693,
+      "rating": 4.7,
+      "reseñas": 40
+    },
+    "recogida": "Recogida entre hoy y mañana de 10h a 18h"
+  }
+]
+
+  
