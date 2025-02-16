@@ -36,7 +36,7 @@ const Home = () => {
   return (
     <div>
       <section className="relative bg-gray-100 py-20 px-2 bg-cover bg-center"
-        style={{ backgroundImage: `url('public/zero-waste.webp')` }}
+        style={{ backgroundImage: `url('/zero-waste.webp')` }}
       >
         <div className="absolute inset-0 bg-black opacity-65"></div>
 
@@ -88,8 +88,6 @@ const Home = () => {
         >
           <ChevronLeftIcon className="h-6 w-6 text-gray-700" />
         </button>
-
-        {/* Carrusel */}
         <div className="overflow-hidden relative">
           <div
             ref={carouselRef}
