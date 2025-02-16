@@ -25,7 +25,7 @@ const app = express()
 app.use(express.json())
 
 const allowedOrigins = [
-  process.env.FRONTEND_URL || "http://localhost:5173",
+  process.env.FRONTEND_URL || process.env.FRONTEND_RENDER_URL || "http://localhost:5173",
 ];
 
 app.use(
