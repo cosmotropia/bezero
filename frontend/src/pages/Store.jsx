@@ -21,7 +21,6 @@ const Store = () => {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // Manejo de filtros
   const handleCategoryChange = (e) => {
     const categoryId = e.target.value === 'all' ? null : parseInt(e.target.value);
     setFilters((prevFilters) => ({ ...prevFilters, categoryId }));
@@ -42,7 +41,6 @@ const Store = () => {
 
   return (
     <div className="min-h-screen flex bg-white">
-      {/* Sidebar de filtros */}
       <aside className={`transition-all duration-300 ease-in-out bg-white ${sidebarOpen ? 'w-64 p-4' : 'w-0 overflow-hidden'}`}>
         <h2 className="text-lg font-bold">Filtros</h2>
         {sidebarOpen && (
@@ -85,8 +83,6 @@ const Store = () => {
           </div>
         )}
       </aside>
-
-      {/* Contenido de publicaciones */}
       <main className="flex-grow bg-white p-4">
         <div className="container mx-auto">
           <div className="flex items-left mb-6">
@@ -95,8 +91,6 @@ const Store = () => {
             </button>
             <h2 className="text-xl font-bold">Publicaciones</h2>
           </div>
-
-          {/* Mostrar publicaciones con el mismo diseño que en Home.js */}
           {filteredPublications.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {filteredPublications.map((publication) => (

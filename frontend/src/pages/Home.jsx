@@ -1,6 +1,6 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { MapPinIcon, BanknotesIcon, GlobeAltIcon, BuildingStorefrontIcon } from '@heroicons/react/24/solid';
+import { MapPinIcon, BanknotesIcon, GlobeAltIcon, BuildingStorefrontIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import ProductCard from '../components/ProductCard';
 import InfoCard from '../components/InfoCard';
 import { ApiContext } from '../context/ApiContext';
@@ -9,6 +9,7 @@ const Home = () => {
   const {publications, fetchPublications, categories } = useContext(ApiContext);
   const [comunaInput, setComunaInput] = useState('');
   const navigate = useNavigate();
+  const carouselRef = useRef(null);
 
   useEffect(() => {
     fetchPublications();
@@ -20,13 +21,29 @@ const Home = () => {
     navigate(`/store?comuna=${encodeURIComponent(searchQuery)}`);
   }
 
+  const scrollLeft = () => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollBy({ left: -300, behavior: "smooth" });
+    }
+  }
+
+  const scrollRight = () => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollBy({ left: 300, behavior: "smooth" });
+    }
+  }
+
   return (
     <div>
-      <section className="bg-gray-100 py-10 px-2">
-        <div className="container mx-auto flex flex-col md:flex-row items-center">
+      <section className="relative bg-gray-100 py-20 px-2 bg-cover bg-center"
+        style={{ backgroundImage: `url('public/zero-waste.webp')` }}
+      >
+        <div className="absolute inset-0 bg-black opacity-65"></div>
+
+        <div className="relative container mx-auto flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-8 md:mb-0 flex flex-col items-center md:items-start">
             <div className="flex items-center bg-white shadow-md rounded-lg overflow-hidden w-full max-w-md">
-              <MapPinIcon className="h-5 w-5 text-gray-800 ml-2" />
+              <MapPinIcon className="h-5 w-5 text-green-700 ml-2" />
               <input
                 type="text"
                 value={comunaInput}
@@ -36,36 +53,54 @@ const Home = () => {
               />
               <button
                 onClick={handleSearch}
-                className="bg-green-600 text-white rounded-lg px-3 py-2 mr-1 hover:bg-green-700 flex items-center"
+                className="bg-green-700 text-white rounded-lg px-3 py-2 mr-1 hover:bg-green-900 flex items-center"
               >
                 Buscar
               </button>
             </div>
           </div>
+
           <div className="md:w-1/2 text-center md:text-left">
-            <h1 className="text-4xl font-bold mb-4">Disfruta más, desperdicia menos</h1>
-            <p className="text-gray-700 mb-6 text-justify">
+            <h1 className="text-5xl font-bold mb-4 text-white">Disfruta más, desperdicia menos</h1>
+            <p className="text-gray-200 mb-6 text-justify">
               Encuentra desde alimentos hasta cosméticos y materiales pagando menos. Conecta
               con comercios, restaurantes y fabricantes que ofrecen excedentes de alimentos,
               productos y materiales a precios accesibles antes que se desperdicien. Juntos
               podemos disfrutar más, desperdiciar menos y construir un mundo más sostenible.
             </p>
             <Link to="/store">
-              <button className="bg-black text-white py-2 px-6 rounded-lg hover:bg-gray-600">
+              <button className="bg-green-700 font-bold text-white py-2 px-6 rounded-lg hover:bg-green-900">
                 Explora aquí
               </button>
             </Link>
           </div>
         </div>
       </section>
-      <section className="py-10">
-        <div className="container mx-auto text-center">
-          <h2 className="text-2xl font-bold mb-6">Categorías</h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+
+      <section className="py-10 relative">
+      <div className="container mx-auto text-center">
+        <h2 className="text-2xl font-bold mb-6">Categorías</h2>
+
+        {/* Botón Izquierdo */}
+        <button
+          onClick={scrollLeft}
+          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100"
+        >
+          <ChevronLeftIcon className="h-6 w-6 text-gray-700" />
+        </button>
+
+        {/* Carrusel */}
+        <div className="overflow-hidden relative">
+          <div
+            ref={carouselRef}
+            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-4"
+          >
             {categories.length > 0 ? (
               categories.map((category) => (
-                <div key={category.id} className="flex flex-col items-center space-y-2">
-                  <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                <div key={category.id} className="flex flex-col items-center space-y-2 min-w-[120px]">
+                  <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg">
+                    <img src={category.imageUrl} alt={category.nombre} className="w-full h-full object-cover" />
+                  </div>
                   <p className="text-sm font-medium">{category.nombre}</p>
                 </div>
               ))
@@ -74,7 +109,14 @@ const Home = () => {
             )}
           </div>
         </div>
-      </section>
+        <button
+          onClick={scrollRight}
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100"
+        >
+          <ChevronRightIcon className="h-6 w-6 text-gray-700" />
+        </button>
+      </div>
+    </section>
 
       <section className="py-10 bg-gray-100">
         <div className="container mx-auto">
@@ -105,20 +147,20 @@ const Home = () => {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex flex-col items-center space-y-2 p-4 border-1 border-gray-50 rounded-lg shadow-md">
-              <BanknotesIcon className="h-12 w-12 text-green-600" />
+              <BanknotesIcon className="h-12 w-12 text-green-800" />
               <p>Ahorra dinero</p>
             </div>
             <div className="flex flex-col items-center space-y-2 p-4 border-1 border-gray-50 rounded-lg shadow-md">
-              <GlobeAltIcon className="h-12 w-12 text-green-600" />
+              <GlobeAltIcon className="h-12 w-12 text-green-800" />
               <p>Cuida el planeta</p>
             </div>
             <div className="flex flex-col items-center space-y-2 p-4 border-1 border-gray-50 rounded-lg shadow-md">
-              <BuildingStorefrontIcon className="h-12 w-12 text-green-600" />
+              <BuildingStorefrontIcon className="h-12 w-12 text-green-800" />
               <p>Apoya el comercio local</p>
             </div>
           </div>
           <Link to="/register">
-            <button className="mt-6 bg-black text-white py-2 px-6 rounded hover:bg-gray-800">
+            <button className="mt-6 bg-green-700 text-white py-2 px-6 rounded-lg hover:bg-gren-900">
               Regístrate
             </button>
           </Link>
