@@ -1,33 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MapPinIcon, BanknotesIcon, GlobeAltIcon, BuildingStorefrontIcon } from '@heroicons/react/24/solid';
 import ProductCard from '../components/ProductCard';
 import InfoCard from '../components/InfoCard';
-import { getFormattedPublications, getCategories } from '../services/apiService';
+import { ApiContext } from '../context/ApiContext';
 
 const Home = () => {
-  const [publications, setPublications] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const {publications, fetchPublications, categories } = useContext(ApiContext);
   const [comunaInput, setComunaInput] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [pubs, cats] = await Promise.all([getFormattedPublications(), getCategories()]);
-        setPublications(pubs);
-        setCategories(cats);
-      } catch (error) {
-        console.error('Error al obtener datos:', error);
-      }
-    };
-    fetchData();
+    fetchPublications();
   }, []);
 
   const handleSearch = () => {
-    if (!comunaInput.trim()) return;
-    navigate(`/store?comuna=${encodeURIComponent(comunaInput.trim())}`);
-  };
+    const searchQuery = comunaInput.trim();
+    if (!searchQuery) return;
+    navigate(`/store?comuna=${encodeURIComponent(searchQuery)}`);
+  }
 
   return (
     <div>

@@ -16,12 +16,12 @@ const PublicationDetail = () => {
   useEffect(() => {
     const fetchPublication = async () => {
       try {
-        const data = await getFormattedPublications();
-        const selectedPublication = data.find((item) => item.id === parseInt(id));
+        const data = await getFormattedPublications(id);
+        //const selectedPublication = data.find((item) => item.id === parseInt(id));
 
-        if (!selectedPublication) throw new Error('Publicación no encontrada');
+        if (!data) throw new Error('Publicación no encontrada');
 
-        setPublication(selectedPublication);
+        setPublication(data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -34,8 +34,8 @@ const PublicationDetail = () => {
   if (loading) return <p className="text-center py-10">Cargando publicación...</p>;
   if (error) return <p className="text-center py-10 text-red-500">{error}</p>;
 
-  const { title, description, precio_actual, imageUrl, comercio, pickup } = publication;
-
+  const { title, description, precio_actual, comercio, pickup } = publication;
+  console.log('publication detail',publication)
   const handleAddToCart = () => {
     if (!publication) {
       alert('Error: No se pudo agregar la publicación al carrito.');
@@ -50,7 +50,7 @@ const PublicationDetail = () => {
       <div className="container mx-auto flex flex-col md:flex-row py-10 px-4 gap-6">
         <div className="flex-1 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
           <img
-            src={imageUrl || 'https://via.placeholder.com/400'}
+            src={comercio?.url_img || 'https://via.placeholder.com/400'}
             alt={title}
             className="w-full h-full max-h-[400px] object-cover"
           />

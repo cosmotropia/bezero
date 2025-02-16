@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { getPublications, getCategories } from '../services/apiService';
+import { getPublications, getCategories, getFormattedPublications } from '../services/apiService';
 
 export const ApiContext = createContext();
 
@@ -10,8 +10,9 @@ const ApiProvider = ({ children }) => {
 
   const fetchPublications = async () => {
     try {
-      const data = await getPublications();
+      const data = await getFormattedPublications();
       setPublications(data);
+      console.log('publications', data)
       setFilteredPublications(data);
     } catch (error) {
       console.error('Error al obtener publicaciones:', error);
