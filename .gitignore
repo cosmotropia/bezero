@@ -1,16 +1,25 @@
-# Dependencias de Node.js
-node_modules/
-package-lock.json
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Variables de entorno
-.env
+node_modules
+dist
+dist-ssr
+*.local
 
-# Archivos del sistema (macOS)
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
-
-# Archivos generados
-/dist/
-/build/
-/coverage/
-/uploads/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
