@@ -1,5 +1,5 @@
 const BASE_URL = import.meta.env.REACT_APP_API_URL;
-const API_URL = `${BASE_URL}/api`;
+const API_URL = 'https://bezero.onrender.com/api';
 
 const fetchWithAuth = async (url, options = {}) => {
   const token = localStorage.getItem('token');
