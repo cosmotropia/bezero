@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000'
+const BASE_URL = import.meta.env.REACT_APP_API_URL || "http://localhost:3000";
 const API_URL = `${BASE_URL}/api`;
 
 const fetchWithAuth = async (url, options = {}) => {
@@ -9,7 +9,6 @@ const fetchWithAuth = async (url, options = {}) => {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
-  // Si no se envió un Content-Type manualmente y no es FormData, asignar application/json
   if (!options.headers?.['Content-Type'] && !(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
