@@ -55,7 +55,7 @@ app.get('/', (req, res) => {
   res.status(200).json({ message: 'API is running...' })
 })
 
-app.use('/uploads', express.static(path.join(__dirname, './public/uploads'), {
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), {
   setHeaders: (res) => {
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   }
