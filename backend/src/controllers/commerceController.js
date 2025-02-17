@@ -37,7 +37,6 @@ const createCommerce = async (req, res) => {
     }
 
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
-
     const newCommerce = await CommerceModel.createCommerce({ 
       nombre, 
       rut, 
