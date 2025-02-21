@@ -38,19 +38,17 @@ const UserProvider = ({ children }) => {
         contrasena: data.get("password"),
         es_comercio: isCommerce,
       }
-      
-      console.log('userData antes de enviar:', userData);
-
-      const newUser = await registerUser(userData);
-      if(newUser){
-        setToken(newUser.token);
-        saveToken(newUser.token);
-        setUser(newUser.user);
-
-        if (isCommerce) {
+      const userResponse = await registerUser(userData)
+      console.log('user response', userResponse)
+      if(userResponse.error){
+        setToken(null)
+        setRegisterError('Email ya registrado')
+        return;
+      }
+      if(isCommerce){
           console.log("Registrando comercio...");
           const commerceData = new FormData();
-          commerceData.append("id_usuario", newUser.user.id);
+          commerceData.append("id_usuario", userResponse.user.id);
           commerceData.append("nombre", data.get("businessName"));
           commerceData.append("rut", data.get("businessRUT"));
           commerceData.append("direccion", data.get("businessAddress"));
@@ -59,14 +57,21 @@ const UserProvider = ({ children }) => {
           if (data.get("image")) {
             commerceData.append("url_img", data.get("image"));
           }
-  
-          console.log("Enviando a createCommerce:", commerceData);
-          await createCommerce(commerceData);
-        }
-        setRegisterError('');
+          const responseCommerce= await createCommerce(commerceData)
+          if(responseCommerce.error){
+            setRegisterError(responseCommerce.error)
+            return;
+          }
       }
-    } catch (error) {
-      setRegisterError('Error al registrar usuario o comercio');
+      setToken(userResponse.token)
+      saveToken(userResponse.token)
+      setUser(userResponse.user)
+      setRegisterError('')
+    } 
+    catch (e) {
+      console.log('registerError log', e)
+      setToken(null)
+      setRegisterError('Error en la solicitud de registro, intente nuevamente');
     }
 }
 

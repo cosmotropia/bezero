@@ -23,11 +23,14 @@ const RegisterUser = () => {
       })
   
       await handleRegister(formData, false);
+      console.log(registerError)
       if (!registerError) {
         alert('Usuario registrado exitosamente');
+      } else {
+        alert("Error al registrar el usuario: " + registerError);
       }
     } catch (error) {
-      alert("Error al registrar el comercio: " + error.message);
+      alert("Error al registrar el usuario: " + error.message);
     }
   }
 

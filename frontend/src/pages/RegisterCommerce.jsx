@@ -13,25 +13,29 @@ const RegisterCommerce = () => {
   } = useForm({
     mode: 'onChange',
   })
-  const { handleRegister, registerError } = useContext(UserContext);
+  const { token, handleRegister, registerError } = useContext(UserContext);
 
   const onSubmit = async (data) => {
     try {
       const formData = new FormData();
       Object.keys(data).forEach((key) => {
         formData.append(key, data[key]);
-      });
+      })
   
       if (data.productImage.length > 0) {
         formData.append('image', data.productImage[0]);
       }
   
-      await handleRegister(formData, true);
-      if (!registerError) {
+      await handleRegister(formData, true)
+      console.log('register error from front', registerError)
+      if (!registerError && token) {
         alert('Usuario registrado exitosamente');
       }
+      else{
+        alert('Error al registrar el comercio')
+      }
     } catch (error) {
-      alert("Error al registrar el comercio: " + error.message);
+      alert("Error al registrar el comercio");
     }
   }
   
