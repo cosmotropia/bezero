@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { EyeIcon, StarIcon } from '@heroicons/react/24/solid';
 
 const CommerceProfile = () => {
-  const { commerce, ventasTotales, calificacionPromedio, publicacionesActivas, fetchCommerceData } = useContext(CommerceContext);
+  const { commerce, ventasTotales, calificacionPromedio, publicaciones, publicacionesActivas, fetchCommerceData } = useContext(CommerceContext);
   const { user, getUser } = useContext(UserContext);
 
   useEffect(() => {
@@ -53,8 +53,8 @@ const CommerceProfile = () => {
             </Link>
           </div>
           <div className="bg-white p-6 rounded-lg shadow text-center relative">
-            <p className="text-3xl font-bold">{publicacionesActivas.length || 0}</p>
-            <p className="text-gray-600">Publicaciones activas</p>
+            <p className="text-2xl font-bold">{publicacionesActivas.length || 0} / {publicaciones.length || 0}</p>
+            <p className="text-gray-600">Publicaciones activas / totales</p>
             <Link to="/publications-commerce">
               <EyeIcon className="absolute top-2 right-2 h-6 w-6 text-gray-500 hover:text-green-600 cursor-pointer" />
             </Link>

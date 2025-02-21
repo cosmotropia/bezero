@@ -42,11 +42,10 @@ const UserProvider = ({ children }) => {
       console.log('user response', userResponse)
       if(userResponse.error){
         setToken(null)
-        setRegisterError('Email ya registrado')
+        setRegisterError(userResponse.error)
         return;
       }
       if(isCommerce){
-          console.log("Registrando comercio...");
           const commerceData = new FormData();
           commerceData.append("id_usuario", userResponse.user.id);
           commerceData.append("nombre", data.get("businessName"));
@@ -59,6 +58,7 @@ const UserProvider = ({ children }) => {
           }
           const responseCommerce= await createCommerce(commerceData)
           if(responseCommerce.error){
+            setToken(null)
             setRegisterError(responseCommerce.error)
             return;
           }
@@ -71,7 +71,7 @@ const UserProvider = ({ children }) => {
     catch (e) {
       console.log('registerError log', e)
       setToken(null)
-      setRegisterError('Error en la solicitud de registro, intente nuevamente');
+      setRegisterError('Error en la solicitud, intente nuevamente');
     }
 }
 

@@ -7,15 +7,17 @@ require("dotenv").config({ path: require("path").resolve(__dirname, "./.env") })
 
 const PORT = process.env.PORT || 3000;
 
-const uploadDir = path.join(__dirname, "public/uploads");
+if (process.env.NODE_ENV !== "production") {
+  const uploadDir = path.join(__dirname, "public/uploads");
 
-if (!fs.existsSync(uploadDir)) {
-  console.log("La carpeta public/uploads no existe. Creándola...");
-  fs.mkdirSync(uploadDir, { recursive: true });
-} else {
-  console.log("La carpeta public/uploads ya existe");
+  if (!fs.existsSync(uploadDir)) {
+    console.log("La carpeta public/uploads no existe. Creándola...");
+    fs.mkdirSync(uploadDir, { recursive: true });
+  } else {
+    console.log("La carpeta public/uploads ya existe");
+  }
+  app.use("/uploads", express.static(uploadDir));
 }
-
 const testDatabaseConnection = async () => {
   try {
     const res = await pool.query("SELECT NOW()")

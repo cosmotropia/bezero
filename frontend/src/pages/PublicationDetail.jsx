@@ -17,10 +17,7 @@ const PublicationDetail = () => {
     const fetchPublication = async () => {
       try {
         const data = await getFormattedPublications(id);
-        //const selectedPublication = data.find((item) => item.id === parseInt(id));
-
         if (!data) throw new Error('Publicación no encontrada');
-
         setPublication(data);
       } catch (err) {
         setError(err.message);
@@ -50,7 +47,7 @@ const PublicationDetail = () => {
       <div className="container mx-auto flex flex-col md:flex-row py-10 px-4 gap-6">
         <div className="flex-1 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
           <img
-            src={comercio?.url_img || 'https://via.placeholder.com/400'}
+            src={comercio?.url_img || '/dummy-img.png'}
             alt={title}
             className="w-full h-full max-h-[400px] object-cover"
           />

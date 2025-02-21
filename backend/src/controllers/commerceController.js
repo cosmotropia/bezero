@@ -30,13 +30,18 @@ const getCommerceByUserId = async (req, res) => {
 }
 
 const createCommerce = async (req, res) => {
+  console.log('create commerce req',req.body)
   try {
     const { nombre, rut, direccion, id_usuario } = req.body;
     if (!nombre || !rut || !direccion || !id_usuario) {
       return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
-
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = process.env.NODE_ENV === "production"
+        ? req.file.location 
+        : `/uploads/${req.file.filename}`
+    }
     const newCommerce = await CommerceModel.createCommerce({ 
       nombre, 
       rut, 

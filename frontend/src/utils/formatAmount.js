@@ -1,3 +1,3 @@
 export function formatAmount(amount) {
-    return amount.toLocaleString('es-CL');
+    return parseInt(amount).toLocaleString('es-CL');
 }

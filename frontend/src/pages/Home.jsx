@@ -81,7 +81,6 @@ const Home = () => {
       <div className="container mx-auto text-center">
         <h2 className="text-2xl font-bold mb-6">Categorías</h2>
 
-        {/* Botón Izquierdo */}
         <button
           onClick={scrollLeft}
           className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100"

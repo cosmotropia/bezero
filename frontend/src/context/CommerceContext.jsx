@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useState, useCallback } from 'react';
 import { 
   getCommerceByUserId, 
   getAverageRatingByCommerceId, 
@@ -7,7 +7,6 @@ import {
   getPublicationsByCommerceId,
   createPublication
 } from '../services/apiService';
-import { BASE_URL } from '../services/apiConfig';
 
 export const CommerceContext = createContext();
 
@@ -27,11 +26,9 @@ const CommerceProvider = ({ children }) => {
         return;
       }
   
-      commerceData.url_img = commerceData.url_img 
-        ? `${BASE_URL}${commerceData.url_img}` 
-        : 'https://img.freepik.com/free-photo/stir-fry-noodles-with-vegetables-black-background_2829-14216.jpg?w=740';
-  
-      setCommerce(commerceData);
+      commerceData.url_img ? commerceData.url_img : '/dummy-img.png';
+      setCommerce(commerceData)
+      refreshCommercePublications(commerceData.id)
     } catch (error) {
       console.error('Error obteniendo datos del comercio:', error);
     }

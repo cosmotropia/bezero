@@ -40,12 +40,7 @@ const getActivePublicationsByCommerceId = async (req, res) => {
     console.log('active publications received afeter validate token')
     console.log(req.params)
     const { id_comercio } = req.params;
-    const publications = await PublicationModel.getActivePublicationsByCommerceId(id_comercio);
-    console.log('publications', publications)
-    if (publications.length === 0) {
-      console.log('array vacio')
-      return res.status(200).json({ message: 'Este comercio no tiene publicaciones activas' });
-    }
+    const publications = await PublicationModel.getActivePublicationsByCommerceId(id_comercio)
 
     res.status(200).json(publications);
   } catch (error) {
@@ -58,10 +53,6 @@ const getPublicationsByCommerceId = async (req, res) => {
   try {
     const { id_comercio } = req.params;
     const publications = await PublicationModel.getPublicationsByCommerceId(id_comercio);
-
-    if (publications.length === 0) {
-      return res.status(200).json({ message: 'Este comercio no tiene publicaciones' });
-    }
 
     res.status(200).json(publications);
   } catch (error) {

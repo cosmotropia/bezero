@@ -40,17 +40,11 @@ const login = async (req, res) => {
 
 const register = async (req, res) => {
   const { nombre, email, telefono, direccion, contrasena, es_comercio = false } = req.body;
-  console.log('registrando usuario')
   const existingUser = await userModel.getUserByEmail(email);
-  console.log(existingUser)
-  if (existingUser) return res.status(400).json({ message: 'El email ya está registrado' });
+  if (existingUser) return res.status(400).json({ error: 'El email ya está registrado' });
   try {
-    console.log('hasheadno pass')
-    const hashedPass = await bcrypt.hash(contrasena, 10);
-    console.log(hashedPass)
-    console.log(req.body)
+    const hashedPass = await bcrypt.hash(contrasena, 10)
     const newUser = await userModel.createUser({ nombre, email, telefono, direccion, contrasena: hashedPass, es_comercio});
-    console.log('new user', newUser)
     const token = generateToken(newUser);
 
     res.status(201).json({ 

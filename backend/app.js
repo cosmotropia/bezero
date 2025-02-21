@@ -41,7 +41,6 @@ app.use(morgan('dev'))
 app.use(helmet())
 
 // Routes
-app.use('/uploads', express.static('public/uploads'));
 app.use('/api/auth', authRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/commerces', commerceRoutes)

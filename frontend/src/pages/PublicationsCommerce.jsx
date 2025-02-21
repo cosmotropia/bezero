@@ -5,8 +5,11 @@ import { Link } from 'react-router-dom';
 import { formatAmount } from '../utils/formatAmount';
 
 const PublicationsCommerce = () => {
-  const { commerce, publicaciones, publicacionesActivas, fetchCommerceData } = useContext(CommerceContext);
+  const { commerce, publicaciones, publicacionesActivas,fetchCommerceData } = useContext(CommerceContext);
   const { user, getUser } = useContext(UserContext);
+
+  console.log(publicaciones)
+  console.log(publicacionesActivas)
 
   useEffect(() => {
     if (!user) {

@@ -37,17 +37,17 @@ export const loginUser = async (email, contrasena) => {
     return response.json()
   }
   
-  export const registerUser = async (userData) => {
+export const registerUser = async (userData) => {
     console.log('from apiservice')
     console.log(userData)
 
     const response = await fetch(`${API_URL}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
     });
     return response.json();
-  }
+}
 
 // USERS
 export const createUser = async (userData) => {
@@ -203,7 +203,7 @@ export const getFormattedPublications = async (id = null) => {
               lat: location.lat,
               lng: location.lng,
               rating: comercio?.calificacion ? parseFloat(comercio.calificacion).toFixed(1) : '0.0',
-              url_img: BASE_URL.concat(comercio?.url_img),
+              url_img: comercio?.url_img || '/dummy-img.png',
             },
             categoria: categoria?.nombre || 'Sin categoría',
             pickup: recogidaText,
@@ -221,7 +221,6 @@ export const getFormattedPublications = async (id = null) => {
 const formatPickupDate = (date) => {
     return new Date(date).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'long' });
 }
-
   
 // FAVORITOS
 export const getFavoritesByUserId = async (userId) => {
@@ -256,7 +255,6 @@ export const removeFavorite = async (favoriteId) => {
 }
 
 export const isFavorite = async (userId, commerceId, token) => {
-    const API_URL = 'http://localhost:3000/api';
   
     const response = await fetch(`${API_URL}/favorites/check`, {
       method: 'POST',

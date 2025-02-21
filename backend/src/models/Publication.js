@@ -40,10 +40,13 @@ const getActivePublicationsByCommerceId = async (id_comercio) => {
 }
 
 const getPublicationsByCommerceId = async (id_comercio) => {
+
   const query = `
     SELECT * FROM publicaciones WHERE id_comercio = $1 ORDER BY id;
   `;
+  console.log('publication commerce', id_comercio)
   const result = await db.query(query, [id_comercio]);
+  console.log(result.rows)
   return result.rows;
 }
 
