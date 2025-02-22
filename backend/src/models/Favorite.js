@@ -1,6 +1,7 @@
 const db = require('../config/db')
 
 const getFavoritesByUserId = async (id_usuario) => {
+  console.log('favorite from model', id_usuario)
   const result = await db.query('SELECT * FROM favoritos WHERE id_usuario = $1', [id_usuario])
   return result.rows
 }

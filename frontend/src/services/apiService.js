@@ -105,6 +105,25 @@ export const createCommerce = async (formData) => {
   return response.json();
 }
 
+export const getCommerceById = async (commerceId) => {
+  try {
+    const commerceResponse = await fetchWithAuth(`${API_URL}/commerces/${commerceId}`);
+    if (!commerceResponse.ok) throw new Error('No se encontró comercio para este usuario');
+
+    const commerceData = await commerceResponse.json();
+
+    const ratingResponse = await fetchWithAuth(`${API_URL}/postsales/${commerceId}/reviews`);
+    const ratingData = ratingResponse.ok ? await ratingResponse.json() : { promedio: '0.0' };
+
+    return {
+      ...commerceData,
+      calificacionPromedio: parseFloat(ratingData.promedio).toFixed(1) || '0.0',
+    }
+  } catch (error) {
+    console.error('Error al obtener comercio:', error);
+    return null;
+  }
+}
   
 export const getCommerceByUserId = async (userId) => {
   const response = await fetchWithAuth(`${API_URL}/commerces/user/${userId}`);
@@ -172,24 +191,29 @@ export const getCommerceLocation = async (direccion) => {
 
 
 export const getFormattedPublications = async (id = null) => {
-    try {
-      const url = id ? `${API_URL}/publications/${id}` : `${API_URL}/publications`;
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Error al obtener publicaciones');
+  try {
+    const url = id ? `${API_URL}/publications/${id}` : `${API_URL}/publications`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Error al obtener publicaciones');
 
-      const publications = id ? [await response.json()] : await response.json();
+    const publications = id ? [await response.json()] : await response.json();
 
-      const formattedPublications = await Promise.all(
-        publications.map(async (pub) => {
-          const commerceResponse = await fetch(`${API_URL}/commerces/${pub.id_comercio}`);
-          const categoryResponse = await fetch(`${API_URL}/categories/${pub.id_categoria}`);
+    const formattedPublications = await Promise.all(
+      publications.map(async (pub) => {
+        try {
+          const [commerceResponse, categoryResponse] = await Promise.all([
+            fetch(`${API_URL}/commerces/${pub.id_comercio}`),
+            fetch(`${API_URL}/categories/${pub.id_categoria}`),
+            //getAverageRatingByCommerceId(pub.id_comercio),
+          ]);
 
           const comercio = commerceResponse.ok ? await commerceResponse.json() : null;
           const categoria = categoryResponse.ok ? await categoryResponse.json() : null;
           const location = comercio?.direccion ? await getCommerceLocation(comercio.direccion) : { lat: null, lng: null };
+          //const rating = ratingResponse && ratingResponse.promedio ? parseFloat(ratingResponse.promedio).toFixed(1) : '0.0';
 
           const recogidaText = `Recogida ${formatPickupDate(pub.dia_recogida_ini)} - ${formatPickupDate(pub.dia_recogida_end)} de ${pub.hr_ini.slice(0, 5)} a ${pub.hr_end.slice(0, 5)}`;
-          
+
           return {
             id: pub.id,
             title: pub.nombre,
@@ -202,21 +226,25 @@ export const getFormattedPublications = async (id = null) => {
               direccion: comercio?.direccion || 'Dirección no disponible',
               lat: location.lat,
               lng: location.lng,
-              rating: comercio?.calificacion ? parseFloat(comercio.calificacion).toFixed(1) : '0.0',
+              calificacionPromedio: comercio?.calificacionPromedio, 
               url_img: comercio?.url_img || '/dummy-img.png',
             },
             categoria: categoria?.nombre || 'Sin categoría',
             pickup: recogidaText,
           };
-        })
-      );
+        } catch (error) {
+          console.error(`Error al obtener detalles de la publicación ${pub.id}:`, error);
+          return null;
+        }
+      })
+    );
 
-      return id ? formattedPublications[0] : formattedPublications;
-    } catch (error) {
-      console.error('Error al obtener publicaciones formateadas:', error);
-      return id ? null : [];
-    }
-};
+    return id ? formattedPublications[0] : formattedPublications.filter((pub) => pub !== null);
+  } catch (error) {
+    console.error('Error al obtener publicaciones formateadas:', error);
+    return id ? null : [];
+  }
+}
 
 const formatPickupDate = (date) => {
     return new Date(date).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'long' });
@@ -224,6 +252,7 @@ const formatPickupDate = (date) => {
   
 // FAVORITOS
 export const getFavoritesByUserId = async (userId) => {
+  console.log('api service favorites', userId)
   const response = await fetchWithAuth(`${API_URL}/favorites/${userId}`);
   if (!response.ok) throw new Error('Error al obtener favoritos');
   return response.json();

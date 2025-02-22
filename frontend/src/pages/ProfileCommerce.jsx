@@ -1,11 +1,12 @@
 import { useContext, useEffect } from 'react';
 import { CommerceContext } from '../context/CommerceContext';
 import { UserContext } from '../context/UserContext';
+import CommerceBanner from '../components/CommerceBanner';
 import { Link } from 'react-router-dom';
 import { EyeIcon, StarIcon } from '@heroicons/react/24/solid';
 
 const CommerceProfile = () => {
-  const { commerce, ventasTotales, calificacionPromedio, publicaciones, publicacionesActivas, fetchCommerceData } = useContext(CommerceContext);
+  const { commerce, ventasTotales, publicaciones, publicacionesActivas, fetchCommerceData } = useContext(CommerceContext);
   const { user, getUser } = useContext(UserContext);
 
   useEffect(() => {
@@ -25,23 +26,12 @@ const CommerceProfile = () => {
     return <p className="text-center py-10">Cargando datos del comercio...</p>;
   }
 
-  const { nombre, direccion, url_img } = commerce;
+  const { nombre, calificacion, url_img } = commerce;
   console.log(url_img)
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      <div className="relative h-75 flex items-center justify-center"
-        style={{
-          backgroundImage: `url(${url_img || 'https://img.freepik.com/free-photo/stir-fry-noodles-with-vegetables-black-background_2829-14216.jpg?w=740'})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}>
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-        <div className="z-10 text-white text-center">
-          <h1 className="text-4xl font-bold">{nombre}</h1>
-          <p className="text-sm mt-2">{direccion}</p>
-        </div>
-      </div>
+      <CommerceBanner comercio={commerce} />
 
       <div className="container mx-auto px-4 py-8 flex-grow">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -61,7 +51,7 @@ const CommerceProfile = () => {
           </div>
           <div className="bg-white p-6 rounded-lg shadow text-center relative">
             <div className="flex items-center justify-center space-x-2">
-              <p className="text-3xl font-bold">{calificacionPromedio}</p>
+              <p className="text-3xl font-bold">{parseFloat(calificacion).toFixed(1)}</p>
               <StarIcon className="h-5 w-5 text-green-600" />
             </div>
             <p className="text-gray-600">Calificación promedio</p>

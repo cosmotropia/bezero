@@ -13,7 +13,7 @@ export const CommerceContext = createContext();
 const CommerceProvider = ({ children }) => {
   const [commerce, setCommerce] = useState(null);
   const [ventasTotales, setVentasTotales] = useState(0);
-  const [calificacionPromedio, setCalificacionPromedio] = useState(0);
+  //const [calificacionPromedio, setCalificacionPromedio] = useState(0);
   const [publicacionesActivas, setPublicacionesActivas] = useState([]);
   const [publicaciones, setPublicaciones] = useState([]);
 
@@ -36,15 +36,16 @@ const CommerceProvider = ({ children }) => {
 
   const refreshCommercePublications = async (commerceId) => {
     try {
-      const [ventas, calificacion, publicacionesActivas, publicaciones] = await Promise.all([
+      const [ventas, publicacionesActivas, publicaciones] = await Promise.all([
         getTotalSalesByCommerceId(commerceId),
-        getAverageRatingByCommerceId(commerceId),
+        //getAverageRatingByCommerceId(commerceId),
         getActivePublicationsByCommerceId(commerceId),
         getPublicationsByCommerceId(commerceId)
       ]);
+      console.log('publicaciones from context', publicaciones)
 
       setVentasTotales(ventas.totalVentas || 0);
-      setCalificacionPromedio(parseFloat(calificacion.promedio).toFixed(1) || '0.0');
+      //setCalificacionPromedio(parseFloat(calificacion.promedio).toFixed(1) || '0.0');
       setPublicacionesActivas(publicacionesActivas);
       setPublicaciones(publicaciones);
     } catch (error) {
@@ -64,8 +65,7 @@ const CommerceProvider = ({ children }) => {
   return (
     <CommerceContext.Provider value={{ 
       commerce, 
-      ventasTotales, 
-      calificacionPromedio, 
+      ventasTotales,
       publicacionesActivas, 
       publicaciones, 
       fetchCommerceData,

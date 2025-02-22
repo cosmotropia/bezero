@@ -1,11 +1,12 @@
 import { createContext, useState, useCallback } from 'react';
-import { loginUser, registerUser, getUserProfile, createCommerce } from '../services/apiService';
+import { loginUser, registerUser, getUserProfile, createCommerce, getFavoritesByUserId, addFavorite, removeFavorite } from '../services/apiService';
 
 export const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [user, setUser] = useState(null);
+  const [favorites, setFavorites] = useState([]);
   const [authError, setAuthError] = useState('');
   const [registerError, setRegisterError] = useState('');
 
@@ -21,6 +22,8 @@ const UserProvider = ({ children }) => {
       saveToken(data.token)
       setAuthError('')
       setUser(data.user)
+      console.log('data user loigsadasdasdsadn', data.user)
+      loadFavorites(data.user.id)
     } catch (error) {
       setAuthError('Credenciales incorrectas');
     }
@@ -66,6 +69,7 @@ const UserProvider = ({ children }) => {
       setToken(userResponse.token)
       saveToken(userResponse.token)
       setUser(userResponse.user)
+      loadFavorites(userResponse.id)
       setRegisterError('')
     } 
     catch (e) {
@@ -79,13 +83,44 @@ const UserProvider = ({ children }) => {
     if (!user && token) {
       try {
         const userData = await getUserProfile(token)
-        console.log('userdata',userData)
-        setUser(userData);
+        setUser(userData)
+        loadFavorites(userData.id)
       } catch (error) {
         console.error('Error al obtener perfil del usuario:', error.message);
         handleLogout();
       }
-    }}, [token, user]);
+    }}, [token, user])
+
+    const loadFavorites = async (userId) => {
+      console.log('entra al load favorites', userId)
+      try {
+        const favs = await getFavoritesByUserId(userId);
+        console.log('favoritos from context',favs)
+        setFavorites(favs.map(fav => fav.id_comercio));
+        
+      } catch (error) {
+        console.error("Error al obtener favoritos:", error);
+      }
+    }
+  
+  const toggleFavorite = async (id_comercio) => {
+    if (!user) {
+      alert("Debes iniciar sesión para añadir a favoritos");
+      return;
+    }
+
+    try {
+      if (favorites.includes(id_comercio)) {
+        await removeFavorite(id_comercio);
+        setFavorites(favorites.filter(id => id !== id_comercio));
+      } else {
+        await addFavorite({ id_usuario: user.id, id_comercio });
+        setFavorites([...favorites, id_comercio]);
+      }
+    } catch (error) {
+      console.error("Error al actualizar favorito:", error);
+    }
+  }
 
   const handleLogout = () => {
     setToken(null);
@@ -100,8 +135,10 @@ const UserProvider = ({ children }) => {
         user,
         authError,
         registerError,
+        favorites,
         handleLogin,
         handleRegister,
+        toggleFavorite,
         handleLogout,
         getUser
       }}

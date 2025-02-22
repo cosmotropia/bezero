@@ -1,12 +1,13 @@
 import { useContext, useEffect, useState } from 'react'
 import { UserContext } from '../context/UserContext'
-import { getVentasByUserId } from '../services/apiService'
+import { getVentasByUserId, getCommerceById } from '../services/apiService'
 import { PencilSquareIcon, CheckIcon, EyeIcon } from '@heroicons/react/24/outline'
+import CommerceBanner from '../components/CommerceBanner'
 
 const UserProfile = () => {
-  const { user, getUser, token } = useContext(UserContext)
-  console.log('profile-user')
-  console.log(user)
+  const { user, getUser, token, favorites } = useContext(UserContext)
+  const [favoritesWithCommerce, setFavoritesWithCommerce ] = useState([])
+  console.log(favorites)
   console.log(token)
   const [editMode, setEditMode] = useState({
     name: false,
@@ -23,6 +24,7 @@ const UserProfile = () => {
     orders: [],
   })
   const [showOrders, setShowOrders] = useState(false)
+  const [showFavorites, setShowFavorites] = useState(false)
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -38,12 +40,26 @@ const UserProfile = () => {
           saved: totalAhorro || 0,
           orders: orders || [],
         })
+        if (favorites.length > 0) {
+          try {
+            const favoritesWithCommerce = await Promise.all(
+              favorites.map(async (f) => ({
+                ...f,
+                commerce: await getCommerceById(f),
+              }))
+            );
+            console.log('favorito from profile user',favoritesWithCommerce)
+            setFavoritesWithCommerce(favoritesWithCommerce);
+          } catch (error) {
+            console.error("Error al obtener comercios favoritos:", error);
+          }
+        }
       } else {
         getUser()
       }
     }
     fetchUserData()
-  }, [user, getUser, token])
+  }, [user, getUser, token, favorites])
 
   const handleEdit = (field) => {
     setEditMode({ ...editMode, [field]: true })
@@ -61,6 +77,9 @@ const UserProfile = () => {
 
   const toggleOrderHistory = () => {
     setShowOrders(!showOrders)
+  }
+  const toggleFavorites = () => {
+    setShowFavorites(!showFavorites)
   }
 
   return (
@@ -127,6 +146,14 @@ const UserProfile = () => {
                 className="absolute top-2 right-2 h-6 w-6 text-gray-500 hover:text-green-600 cursor-pointer"
               />
             </div>
+            <div className="bg-gray-100 p-4 rounded-lg shadow-md relative">
+              <h3 className="text-lg font-bold">{favorites.length}</h3>
+              <p className="text-sm text-gray-600">Favoritos</p>
+              <EyeIcon
+                onClick={toggleFavorites}
+                className="absolute top-2 right-2 h-6 w-6 text-gray-500 hover:text-green-600 cursor-pointer"
+              />
+            </div>
           </div>
 
           {showOrders && (
@@ -154,6 +181,21 @@ const UserProfile = () => {
                     </li>
                   ))}
                 </ul>
+              )}
+            </div>
+          )}
+
+          {showFavorites && (
+            <div className="mt-6 bg-gray-50 p-4 rounded-lg shadow-md">
+              <h3 className="text-lg font-bold mb-4">Favoritos</h3>
+              {favorites.length === 0 ? (
+                <p className="text-gray-600">No hay comercios agregados</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 {favoritesWithCommerce.map((fav) => (
+                    <CommerceBanner key={fav.id_comercio} comercio={fav.commerce} isFavorite={true} />
+                  ))}
+                </div>
               )}
             </div>
           )}
