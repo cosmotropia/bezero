@@ -7,7 +7,8 @@ const { createPublication,
     getPublicationsByCommerceId,
     getActivePublicationsByCommerceId,
     updatePublication, 
-    deletePublication } = require('../controllers/publicationController')
+    deletePublication,
+    disablePublication } = require('../controllers/publicationController')
 
 const router = express.Router()
 
@@ -18,6 +19,7 @@ router.get('/order/:id_oc', verifyToken, getPublicationsByOrderId)
 router.get('/commerce/:id_comercio', verifyToken, getPublicationsByCommerceId)
 router.get('/commerce/:id_comercio/active', verifyToken, getActivePublicationsByCommerceId)
 router.put('/:id', verifyToken, updatePublication)
+router.put('/disable/:id', verifyToken, disablePublication)
 router.delete('/:id', verifyToken, deletePublication)
 
 module.exports = router

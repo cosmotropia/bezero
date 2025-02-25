@@ -1,21 +1,22 @@
 import { createContext, useState, useCallback } from 'react';
 import { 
-  getCommerceByUserId, 
-  getAverageRatingByCommerceId, 
+  getCommerceByUserId,
   getTotalSalesByCommerceId, 
   getActivePublicationsByCommerceId,
   getPublicationsByCommerceId,
-  createPublication
+  createPublication,
+  getNotificationsByCommerce,
+  markNotificationAsRead
 } from '../services/apiService';
 
 export const CommerceContext = createContext();
 
 const CommerceProvider = ({ children }) => {
   const [commerce, setCommerce] = useState(null);
-  const [ventasTotales, setVentasTotales] = useState(0);
-  //const [calificacionPromedio, setCalificacionPromedio] = useState(0);
+  const [ventasTotales, setVentasTotales] = useState([]);
   const [publicacionesActivas, setPublicacionesActivas] = useState([]);
   const [publicaciones, setPublicaciones] = useState([]);
+  const [notificaciones, setNotificaciones] = useState([]);
 
   const fetchCommerceData = useCallback(async (userId) => {
     try {
@@ -25,42 +26,62 @@ const CommerceProvider = ({ children }) => {
         console.warn('No se encontró el comercio para el usuario:', userId);
         return;
       }
-  
-      commerceData.url_img ? commerceData.url_img : '/dummy-img.png';
       setCommerce(commerceData)
-      refreshCommercePublications(commerceData.id)
+      refreshCommerceData(commerceData.id)
     } catch (error) {
       console.error('Error obteniendo datos del comercio:', error);
     }
   }, []);
 
-  const refreshCommercePublications = async (commerceId) => {
+  const refreshCommerceData = async (commerceId) => {
     try {
-      const [ventas, publicacionesActivas, publicaciones] = await Promise.all([
+      const [ventasTotales, publicacionesActivas, publicaciones, notificaciones] = await Promise.all([
         getTotalSalesByCommerceId(commerceId),
-        //getAverageRatingByCommerceId(commerceId),
         getActivePublicationsByCommerceId(commerceId),
-        getPublicationsByCommerceId(commerceId)
+        getPublicationsByCommerceId(commerceId),
+        getNotificationsByCommerce(commerceId)
       ]);
-      console.log('publicaciones from context', publicaciones)
 
-      setVentasTotales(ventas.totalVentas || 0);
-      //setCalificacionPromedio(parseFloat(calificacion.promedio).toFixed(1) || '0.0');
+      setVentasTotales(ventasTotales);
+      console.log('ventas from context', ventasTotales);
       setPublicacionesActivas(publicacionesActivas);
       setPublicaciones(publicaciones);
+      setNotificaciones(notificaciones)
     } catch (error) {
       console.error('Error actualizando publicaciones del comercio:', error);
     }
   };
-
+  const asyncNotificationsByUser = async (userId) => {
+    try {
+      console.log('buscando notificaciones')
+      const commerceData = await getCommerceByUserId(userId)
+      const notifications = await getPublicationsByCommerceId(commerceData.id)
+      setNotificaciones(notifications)
+    } catch (error) {
+      console.error('Error al obtener notificaciones:', error);
+    }
+  }
   const createNewPublication = async (newPublication) => {
     try {
       await createPublication(newPublication);
-      await refreshCommercePublications(commerce.id);
+      await refreshCommerceData(commerce.id);
     } catch (error) {
       console.error('Error al crear publicación:', error);
     }
-  };
+  }
+
+  const markNotification = async (notificationId) => {
+    try {
+      await markNotificationAsRead(notificationId);
+      setNotificaciones((prev) =>
+        prev.map((notification) =>
+          notification.id === notificationId ? { ...notification, estado: true } : notification
+        )
+      );
+    } catch (error) {
+      console.error('Error al marcar la notificación como leída:', error);
+    }
+  }
 
   return (
     <CommerceContext.Provider value={{ 
@@ -68,8 +89,11 @@ const CommerceProvider = ({ children }) => {
       ventasTotales,
       publicacionesActivas, 
       publicaciones, 
+      notificaciones,
       fetchCommerceData,
-      createNewPublication
+      createNewPublication,
+      markNotification,
+      asyncNotificationsByUser
     }}>
       {children}
     </CommerceContext.Provider>

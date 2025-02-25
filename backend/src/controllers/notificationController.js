@@ -16,6 +16,17 @@ const getNotificationsByCommerceId = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener notificaciones' })
   }
 }
+const markNotificationAsRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(`Solicitud para marcar notificación ${id} como leída`);
+    const updatedNotification = await NotificationModel.markNotificationAsRead(id);
+    res.status(200).json(updatedNotification);
+  } catch (error) {
+    console.error('Error al marcar notificación como leída:', error.message);
+    res.status(500).json({ error: 'Error al actualizar notificación' });
+  }
+}
 
 const createNotification = async (req, res) => {
   try {
@@ -28,6 +39,6 @@ const createNotification = async (req, res) => {
   }
 }
 
-module.exports = { getNotificationsByCommerceId, createNotification }
+module.exports = { getNotificationsByCommerceId, createNotification, markNotificationAsRead }
 
 

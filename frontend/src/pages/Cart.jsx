@@ -21,7 +21,7 @@ const Cart = () => {
               <div key={item.id} className="flex items-center justify-between border-b pb-4 mb-4">
                 <div className="flex items-center space-x-4">
                   <img
-                    src={item.imageUrl || 'https://via.placeholder.com/80'}
+                    src={item.comercio.url_img || 'https://via.placeholder.com/80'}
                     alt={item.title}
                     className="w-20 h-20 object-cover rounded"
                   />
@@ -32,6 +32,7 @@ const Cart = () => {
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
+                  {/*
                   <div className="flex items-center border rounded">
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -47,6 +48,7 @@ const Cart = () => {
                       +
                     </button>
                   </div>
+                  */}
                   <button
                     onClick={() => removeFromCart(item.id)}
                     className="text-red-500 hover:text-red-700"

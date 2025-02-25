@@ -6,7 +6,7 @@ const { createCommerce, getAllCommerces, getCommerceById, getCommerceByUserId, u
 const router = express.Router()
 
 router.post('/', verifyToken, upload.single('url_img'), createCommerce);
-router.get('/', verifyToken, getAllCommerces)
+router.get('/', getAllCommerces)
 router.get('/:id', getCommerceById)
 router.get('/user/:userId', verifyToken, getCommerceByUserId)
 router.put('/:id', verifyToken, updateCommerce)

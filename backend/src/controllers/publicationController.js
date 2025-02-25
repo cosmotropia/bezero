@@ -37,8 +37,6 @@ const getPublicationsByOrderId = async (req, res) => {
 
 const getActivePublicationsByCommerceId = async (req, res) => {
   try {
-    console.log('active publications received afeter validate token')
-    console.log(req.params)
     const { id_comercio } = req.params;
     const publications = await PublicationModel.getActivePublicationsByCommerceId(id_comercio)
 
@@ -60,10 +58,19 @@ const getPublicationsByCommerceId = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener publicaciones' });
   }
 }
-
+const disablePublication = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(`Solicitud para marcar notificación ${id} como leída`);
+    const updatedPublication = await PublicationModel.disablePublication(id);
+    res.status(200).json(updatedPublication);
+  } catch (error) {
+    console.error('Error al marcar notificación como leída:', error.message);
+    res.status(500).json({ error: 'Error al actualizar notificación' });
+  }
+}
 const createPublication = async (req, res) => {
   try {
-    console.log(req.body)
     const newPublication = await PublicationModel.createPublication(req.body)
     res.status(201).json(newPublication)
   } catch (error) {
@@ -98,5 +105,6 @@ module.exports = {
   getActivePublicationsByCommerceId,
   createPublication,
   updatePublication,
-  deletePublication
+  deletePublication,
+  disablePublication
 }

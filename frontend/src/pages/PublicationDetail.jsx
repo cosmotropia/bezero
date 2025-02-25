@@ -39,7 +39,7 @@ const PublicationDetail = () => {
       return;
     }
     addToCart(publication, quantity);
-    alert(`"${title}" añadido al carrito (${quantity} unidades).`);
+    alert(`"${title}" añadida al carrito.`);
   };
 
   return (
@@ -69,16 +69,18 @@ const PublicationDetail = () => {
             <p className="font-medium">{comercio?.rating || '0.0'}</p>
           </div>
           <div className="flex items-center justify-between border-t pt-4">
+            {/*
             <div className="flex items-center space-x-2">
               <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300">-</button>
               <span className="font-medium">{quantity}</span>
               <button onClick={() => setQuantity(quantity + 1)} className="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300">+</button>
             </div>
+            */}
             <p className="text-2xl font-bold">${formatAmount(precio_actual)}</p>
           </div>
           <button
             onClick={handleAddToCart}
-            className="w-full mt-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+            className="w-full mt-4 py-2 bg-green-800 text-white rounded-lg hover:bg-black"
           >
             Agregar al carro
           </button>

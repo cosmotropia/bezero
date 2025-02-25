@@ -47,7 +47,7 @@ const ProductCard = ({ id, title, precio_actual, precio_estimado, comercio, pick
         </button>
         <div className="absolute top-3 left-3 bg-white px-2 py-1 rounded-full shadow-md flex items-center gap-1">
           <StarIcon className="h-5 w-5 text-green-600" />
-          <span className="text-sm font-bold">{comercio?.calificacionPromedio}</span>
+          <span className="text-sm font-bold">{parseFloat(comercio?.calificacionPromedio).toFixed(1) || '0.0'}</span>
         </div>
       </div>
       <div className="p-4">

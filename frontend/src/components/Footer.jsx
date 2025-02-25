@@ -1,11 +1,11 @@
-import { FaFacebook, FaInstagram } from 'react-icons/fa'
+import { FaFacebook, FaInstagram} from 'react-icons/fa'
 
 const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white py-4">
       <div className="container mx-auto flex flex-col items-center justify-center space-y-2">
         <p className="text-sm text-center">
-          © Hecho con amor por beZero 2024 - Súmate al cambio
+          © Hecho con amor por beZero 2025 - Súmate al cambio
         </p>
         <div className="flex space-x-4">
           <a

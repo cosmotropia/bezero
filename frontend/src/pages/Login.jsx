@@ -77,13 +77,13 @@ const Login = () => {
                 />
                 Recuérdame
               </label>
-              <a href="#" className="text-sm text-green-500 hover:underline">
+              <a href="#" className="text-sm text-green-700 hover:underline">
                 ¿Olvidaste tu contraseña?
               </a>
             </div>
             <button
               type="submit"
-              className="w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition"
+              className="w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-black transition"
             >
               Iniciar sesión
             </button>
@@ -93,7 +93,7 @@ const Login = () => {
           )}
           <p className="text-sm text-gray-600 mt-4 text-center">
             ¿No tienes una cuenta?{" "}
-            <a href="/register" className="text-green-500 font-bold hover:underline">
+            <a href="/register" className="text-green-700 font-bold hover:underline">
               Regístrate
             </a>
           </p>

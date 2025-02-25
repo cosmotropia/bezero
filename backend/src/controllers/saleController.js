@@ -50,7 +50,8 @@ const getTotalSalesByCommerceId = async (req, res) => {
   try {
     console.log(req.params.id_comercio)
     const totalSales = await SaleModel.getTotalSalesByCommerceId(req.params.id_comercio);
-    res.status(200).json({ total_ventas: totalSales });
+    console.log(totalSales)
+    res.status(200).json(totalSales);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener el total de ventas' });
   }

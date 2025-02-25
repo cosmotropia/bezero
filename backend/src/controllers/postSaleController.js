@@ -18,12 +18,20 @@ const getPostSaleBySaleId = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener post venta' })
   }
 }
+const getPostSaleByUserId = async(req, res) => {
+  try {
+    const postSale = await PostSaleModel.getPostSaleByUserId(req.params.id_usuario)
+    res.status(200).json(postSale)
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener post ventas' })
+  }
+}
 
 const createPostSale = async (req, res) => {
   try {
-    const { id_venta, calificacion, comentario } = req.body
-    if (!id_venta || !calificacion) {
-      return res.status(400).json({ error: 'id_venta y calificación son obligatorios' })
+    const { id_venta, id_usuario, calificacion, comentario } = req.body
+    if (!id_venta || !id_usuario || !calificacion) {
+      return res.status(400).json({ error: 'id_venta, id_usuario y calificación son obligatorios' })
     }
 
     const newPostSale = await PostSaleModel.createPostSale(req.body)
@@ -42,15 +50,24 @@ const getAverageRatingByCommerceId = async (req, res) => {
   }
 }
 
+const getPostSalesByCommerceId = async (req, res) => {
+  try {
+    const post_ventas = await PostSaleModel.getPostSalesByCommerceId(req.params.id_comercio)
+    res.status(200).json(post_ventas)
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener post ventas' })
+  }
+}
+
 const getCommentsByCommerceId = async (req, res) => {
   try {
     const promedio = await PostSaleModel.getCommentsByCommerceId(req.params.id_comercio)
     res.status(200).json({ promedio })
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener la calificación promedio' })
+    res.status(500).json({ error: 'Error al obtener comentarios de post venta' })
   }
 }
 
-module.exports = { getAllPostSales, getPostSaleBySaleId, createPostSale, getAverageRatingByCommerceId, getCommentsByCommerceId}
+module.exports = { getAllPostSales, getPostSaleBySaleId, getPostSaleByUserId, createPostSale, getPostSalesByCommerceId ,getAverageRatingByCommerceId, getCommentsByCommerceId}
 
 

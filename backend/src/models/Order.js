@@ -16,7 +16,6 @@ const getOrderByUserId = async (id) => {
 }
 
 const createOrder = async ({ userId, cart }) => {
-  console.log('📌 Creando orden con userId:', userId, 'Cart:', cart)
   const client = await db.getClient()
   try {
     await client.query('BEGIN')

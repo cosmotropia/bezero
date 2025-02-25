@@ -1,8 +1,10 @@
 import { useContext, useEffect, useState } from 'react'
 import { UserContext } from '../context/UserContext'
-import { getVentasByUserId, getCommerceById } from '../services/apiService'
-import { PencilSquareIcon, CheckIcon, EyeIcon } from '@heroicons/react/24/outline'
+import { getVentasByUserId, getCommerceById, createPostVenta, getPostSalesByUserId } from '../services/apiService'
+import { PencilSquareIcon, CheckIcon, EyeIcon, StarIcon, HeartIcon, ArchiveBoxIcon, BanknotesIcon } from '@heroicons/react/24/outline'
 import CommerceBanner from '../components/CommerceBanner'
+import { formatAmount } from '../utils/formatAmount';
+import Modal from "../components/Modal"
 
 const UserProfile = () => {
   const { user, getUser, token, favorites } = useContext(UserContext)
@@ -25,13 +27,18 @@ const UserProfile = () => {
   })
   const [showOrders, setShowOrders] = useState(false)
   const [showFavorites, setShowFavorites] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [evaluations, setEvaluations] = useState([])
+  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
         console.log(user.id)
         const { orders, totalAhorro } = await getVentasByUserId(user.id)
-        console.log(orders)
+        console.log('orders array', orders)
         setUserData({
           name: user.nombre,
           address: user.direccion,
@@ -40,6 +47,8 @@ const UserProfile = () => {
           saved: totalAhorro || 0,
           orders: orders || [],
         })
+        const evaluationsData = await getPostSalesByUserId(user.id);
+        setEvaluations(evaluationsData)
         if (favorites.length > 0) {
           try {
             const favoritesWithCommerce = await Promise.all(
@@ -81,7 +90,28 @@ const UserProfile = () => {
   const toggleFavorites = () => {
     setShowFavorites(!showFavorites)
   }
+  const openModal = (order) => {
+    setSelectedOrder(order);
+    setModalOpen(true);
+  };
 
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedOrder(null);
+    setRating(0);
+    setComment("");
+  };
+
+  const submitReview = async () => {
+    if (!selectedOrder) return;
+    try {
+      await createPostVenta(selectedOrder.id_venta, selectedOrder.id_usuario, rating, comment);
+      setEvaluations([...evaluations, { id_venta: selectedOrder.id_venta, id_usuario: selectedOrder.id_usuario, calificacion: rating, comentario: comment }]);
+      closeModal();
+    } catch (error) {
+      console.error("Error al enviar evaluación:", error);
+    }
+  }
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       <div className="container mx-auto px-4 py-8 flex-grow">
@@ -97,37 +127,23 @@ const UserProfile = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {['name', 'address', 'email', 'phone'].map((field) => (
+            {["name", "address", "email", "phone"].map((field) => (
               <div key={field} className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
-                  {field === 'name'
-                    ? 'Nombre'
-                    : field === 'address'
-                    ? 'Dirección'
-                    : field === 'email'
-                    ? 'Email'
-                    : 'Teléfono'}
+                <label className="block text-sm font-medium text-green-700 mb-1 capitalize">
+                  {field === "name" ? "Nombre" : field === "address" ? "Dirección" : field === "email" ? "Email" : "Teléfono"}
                 </label>
                 <input
-                  type={field === 'email' ? 'email' : 'text'}
+                  type={field === "email" ? "email" : "text"}
                   value={userData[field]}
                   disabled={!editMode[field]}
                   onChange={(e) => handleChange(field, e.target.value)}
-                  className={`w-full p-2 border rounded-lg focus:outline-none ${
-                    editMode[field] ? 'border-gray-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-2 border rounded-lg focus:outline-none ${editMode[field] ? "border-gray-500" : "border-gray-300"}`}
                 />
                 {!editMode[field] && (
-                  <PencilSquareIcon
-                    onClick={() => handleEdit(field)}
-                    className="absolute right-3 top-8 w-5 h-5 text-gray-500 hover:text-green-600 cursor-pointer"
-                  />
+                  <PencilSquareIcon onClick={() => handleEdit(field)} className="absolute right-3 top-8 w-5 h-5 text-green-700 hover:text-green-800 cursor-pointer" />
                 )}
                 {editMode[field] && (
-                  <CheckIcon
-                    onClick={() => handleSave(field)}
-                    className="absolute right-3 top-8 w-5 h-5 text-gray-500 hover:text-green-600 cursor-pointer"
-                  />
+                  <CheckIcon onClick={() => handleSave(field)} className="absolute right-3 top-8 w-5 h-5 text-green-700 hover:text-green-800 cursor-pointer" />
                 )}
               </div>
             ))}
@@ -135,53 +151,67 @@ const UserProfile = () => {
 
           <div className="grid grid-cols-2 gap-6 text-center">
             <div className="bg-gray-100 p-4 rounded-lg shadow-md relative">
-              <h3 className="text-lg font-bold">{`$${userData.saved.toLocaleString()}`}</h3>
-              <p className="text-sm text-gray-600">Ahorrado</p>
+              <BanknotesIcon className="h-6 w-6 text-green-700 mx-auto" />
+              <h3 className="text-lg font-bold text-green-700">{`$${formatAmount(userData.saved)}`}</h3>
+              <p className="text-sm text-green-700">Ahorrado</p>
             </div>
             <div className="bg-gray-100 p-4 rounded-lg shadow-md relative">
-              <h3 className="text-lg font-bold">{userData.orders.length}</h3>
-              <p className="text-sm text-gray-600">Pedidos</p>
-              <EyeIcon
-                onClick={toggleOrderHistory}
-                className="absolute top-2 right-2 h-6 w-6 text-gray-500 hover:text-green-600 cursor-pointer"
-              />
+              <ArchiveBoxIcon className="h-6 w-6 text-green-700 mx-auto" />
+              <h3 className="text-lg font-bold text-green-700">{userData.orders.length}</h3>
+              <p className="text-sm text-green-700">Pedidos</p>
+              <EyeIcon onClick={toggleOrderHistory} className="absolute top-2 right-2 h-6 w-6 text-green-700 hover:text-green-800 cursor-pointer" />
             </div>
             <div className="bg-gray-100 p-4 rounded-lg shadow-md relative">
-              <h3 className="text-lg font-bold">{favorites.length}</h3>
-              <p className="text-sm text-gray-600">Favoritos</p>
-              <EyeIcon
-                onClick={toggleFavorites}
-                className="absolute top-2 right-2 h-6 w-6 text-gray-500 hover:text-green-600 cursor-pointer"
-              />
+              <HeartIcon className="h-6 w-6 text-green-700 mx-auto" />
+              <h3 className="text-lg font-bold text-green-700">{favorites.length}</h3>
+              <p className="text-sm text-green-700">Favoritos</p>
+              <EyeIcon onClick={toggleFavorites} className="absolute top-2 right-2 h-6 w-6 text-green-700 hover:text-green-800 cursor-pointer" />
             </div>
           </div>
-
           {showOrders && (
             <div className="mt-6 bg-gray-50 p-4 rounded-lg shadow-md">
-              <h3 className="text-lg font-bold mb-4">Historial de pedidos</h3>
+              <h3 className="text-lg font-bold mb-4 text-green-700">Historial de pedidos</h3>
               
-              {(!userData.orders || userData.orders.length === 0) ? (
-                <p className="text-gray-600">No hay pedidos por mostrar</p>
-              ) : (
-                <ul className="space-y-4">
-                  {userData.orders.map((order, index) => (
-                    <li key={index} className="p-4 border rounded-lg bg-white shadow-sm">
-                      <p className="font-bold mb-2">Orden #{order.id_oc}</p>
-                      <p className="text-sm text-gray-600">
-                        Fecha: {order.timestamp ? new Date(order.timestamp).toLocaleDateString() : "Desconocida"}
-                      </p>
-                      <ul className="mt-2 space-y-2">
-                        {order.items.map((item, idx) => (
-                          <li key={idx} className="text-sm text-gray-700">
-                            {item.title} - Cantidad: {item.quantity}, Precio pagado: ${item.precio_pagado}, Ahorro: $
-                            {(item.precio_real - item.precio_pagado)}
-                          </li>
-                        ))}
-                      </ul>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              {userData.orders.length === 0 ? (
+          <p className="text-gray-600">No hay pedidos por mostrar</p>
+        ) : (
+          <ul className="space-y-4">
+            {userData.orders.map((order, index) => {
+              const evaluation = evaluations.find((e) => e.id_venta === order.id_venta);
+
+              return (
+                <li key={index} className="p-4 border-0 rounded-lg bg-white shadow-lg flex justify-between items-center">
+                  <div>
+                    <p className="font-bold mb-2">Orden #{order.id}</p>
+                    <p className="text-sm text-gray-600">
+                      <b>Fecha:</b> {new Date(order.timestamp).toLocaleDateString()}
+                    </p>
+                    <ul className="mt-2 space-y-2">
+                      {order.items.map((item, idx) => (
+                        <li key={idx} className="text-sm text-gray-700">
+                          {item.title} - <b>Cantidad:</b> {item.quantity} - <b>Precio pagado:</b> ${item.precio_pagado}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                    <div className="flex items-center space-x-4">
+                      {evaluation ? (
+                        <div className="text-green-700 flex items-center space-x-1">
+                          <StarIcon className="h-6 w-6 text-yellow-500" />
+                          <span className="font-semibold">{evaluation.calificacion}/5</span>
+                          <p className="text-sm text-gray-600 italic">"{evaluation.comentario}"</p>
+                        </div>
+                      ) : (
+                        <button className="bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700" onClick={() => openModal(order)}>
+                          Evaluar
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            )}
             </div>
           )}
 
@@ -199,6 +229,14 @@ const UserProfile = () => {
               )}
             </div>
           )}
+          <Modal title="Evaluar Pedido" isOpen={modalOpen} onClose={closeModal} onConfirm={submitReview} confirmText="Enviar Evaluación">
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              {[1, 2, 3, 4, 5].map((num) => (
+                <StarIcon key={num} className={`h-8 w-8 cursor-pointer ${rating >= num ? "text-yellow-500" : "text-gray-300"}`} onClick={() => setRating(num)} />
+              ))}
+            </div>
+            <textarea className="w-full p-2 border rounded-lg mt-2" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Deja tu comentario..." />
+          </Modal>
         </div>
       </div>
     </div>

@@ -7,6 +7,15 @@ const getNotificationsByCommerceId = async (id_comercio) => {
   return result.rows
 }
 
+const markNotificationAsRead = async (notificationId) => {
+  console.log(`Marcando notificación ${notificationId} como leída`);
+  const result = await db.query(
+    'UPDATE notificaciones SET estado = TRUE WHERE id = $1 RETURNING *',
+    [notificationId]
+  );
+  return result.rows[0];
+}
+
 const createNotification = async ({ mensaje, estado = false, id_comercio }) => {
   console.log(`Insertando notificación con: mensaje=${mensaje}, estado=${estado}, id_comercio=${id_comercio}`)
   const result = await db.query(
@@ -17,7 +26,7 @@ const createNotification = async ({ mensaje, estado = false, id_comercio }) => {
   return result.rows[0]
 }
 
-module.exports = { getNotificationsByCommerceId, createNotification }
+module.exports = { getNotificationsByCommerceId, createNotification, markNotificationAsRead }
 
 
 

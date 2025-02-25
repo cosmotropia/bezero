@@ -23,20 +23,19 @@ const getPublicationsByOrderId = async (id_oc) => {
 }
 
 const getActivePublicationsByCommerceId = async (id_comercio) => {
-  console.log('entra al modelo')
   const query = `
-    SELECT p.* 
-    FROM publicaciones p
-    LEFT JOIN ventas v ON p.id = v.id
-    WHERE p.id_comercio = $1 
-      AND p.dia_recogida_end >= CURRENT_DATE
-      AND v.id IS NULL
-    ORDER BY p.id;
+    SELECT * FROM publicaciones WHERE activa = TRUE AND id_comercio = $1 ORDER BY id;
   `;
-  console.log('hace la query')
   const result = await db.query(query, [id_comercio]);
-  console.log(result.rows)
   return result.rows;
+}
+
+const disablePublication = async (id) => {
+  const result = await db.query(
+    'UPDATE publicaciones SET activa = FALSE WHERE id = $1 RETURNING *',
+    [id]
+  );
+  return result.rows[0];
 }
 
 const getPublicationsByCommerceId = async (id_comercio) => {
@@ -44,9 +43,7 @@ const getPublicationsByCommerceId = async (id_comercio) => {
   const query = `
     SELECT * FROM publicaciones WHERE id_comercio = $1 ORDER BY id;
   `;
-  console.log('publication commerce', id_comercio)
   const result = await db.query(query, [id_comercio]);
-  console.log(result.rows)
   return result.rows;
 }
 
@@ -96,6 +93,7 @@ module.exports = {
   getPublicationsByOrderId, 
   getPublicationsByCommerceId , 
   getActivePublicationsByCommerceId,
+  disablePublication,
   createPublication, 
   updatePublication, 
   deletePublication }

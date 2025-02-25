@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { EyeIcon, StarIcon } from '@heroicons/react/24/solid';
 
 const CommerceProfile = () => {
-  const { commerce, ventasTotales, publicaciones, publicacionesActivas, fetchCommerceData } = useContext(CommerceContext);
+  const { commerce, ventasTotales, publicaciones, publicacionesActivas, fetchCommerceData, notificaciones } = useContext(CommerceContext);
   const { user, getUser } = useContext(UserContext);
 
   useEffect(() => {
@@ -25,9 +25,8 @@ const CommerceProfile = () => {
   if (!commerce) {
     return <p className="text-center py-10">Cargando datos del comercio...</p>;
   }
-
-  const { nombre, calificacion, url_img } = commerce;
-  console.log(url_img)
+  console.log(ventasTotales)
+  const unreadNotifications = notificaciones.filter((notif) => !notif.estado).length;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
@@ -36,11 +35,16 @@ const CommerceProfile = () => {
       <div className="container mx-auto px-4 py-8 flex-grow">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow text-center relative">
-            <p className="text-3xl font-bold">{ventasTotales}</p>
+            <p className="text-3xl font-bold">{ventasTotales.length || 0 }</p>
             <p className="text-gray-600">Ventas totales</p>
             <Link to="/sales-commerce">
               <EyeIcon className="absolute top-2 right-2 h-6 w-6 text-gray-500 hover:text-green-600 cursor-pointer" />
             </Link>
+            {unreadNotifications > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {unreadNotifications}
+              </span>
+            )}
           </div>
           <div className="bg-white p-6 rounded-lg shadow text-center relative">
             <p className="text-2xl font-bold">{publicacionesActivas.length || 0} / {publicaciones.length || 0}</p>
@@ -51,7 +55,7 @@ const CommerceProfile = () => {
           </div>
           <div className="bg-white p-6 rounded-lg shadow text-center relative">
             <div className="flex items-center justify-center space-x-2">
-              <p className="text-3xl font-bold">{parseFloat(calificacion).toFixed(1)}</p>
+              <p className="text-3xl font-bold">{parseFloat(commerce.calificacionPromedio).toFixed(1)}</p>
               <StarIcon className="h-5 w-5 text-green-600" />
             </div>
             <p className="text-gray-600">Calificación promedio</p>
@@ -81,7 +85,7 @@ const CommerceProfile = () => {
 
         <div className="text-center mt-8">
           <Link to="/create-publication">
-            <button className="bg-green-600 text-white py-3 px-8 rounded-lg font-bold hover:bg-green-700">
+            <button className="bg-green-900 text-white py-3 px-8 rounded-lg font-bold hover:bg-green-700">
               Crear nueva publicación
             </button>
           </Link>

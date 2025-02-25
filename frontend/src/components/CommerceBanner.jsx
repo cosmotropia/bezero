@@ -21,7 +21,7 @@ const CommerceBanner = ({ comercio, isFavorite = false }) => {
         <div className="absolute top-3 left-3 bg-white px-2 py-1 rounded-full shadow-md flex items-center gap-1">
           <StarIcon className="h-4 w-4 text-green-600" />
           <span className="text-xs font-bold text-black">
-            {parseFloat(comercio?.calificacion).toFixed(1) || '0.0'}
+            {parseFloat(comercio?.calificacionPromedio).toFixed(1) || '0.0'}
           </span>
         </div>
         <h1 className={`font-bold ${isFavorite ? "text-lg" : "text-2xl md:text-3xl"}`}>

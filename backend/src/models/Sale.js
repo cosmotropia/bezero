@@ -23,7 +23,7 @@ const deleteSale = async (id) => {
   return result.rowCount > 0 ? result.rows[0] : null
 }
 
-
+/*
 const getTotalSalesByCommerceId = async (id_comercio) => {
   console.log('model sales total')
   const result = await db.query(
@@ -34,6 +34,19 @@ const getTotalSalesByCommerceId = async (id_comercio) => {
     [id_comercio]
   )
   return result.rows[0];
+}*/
+const getTotalSalesByCommerceId = async (id_comercio) => {
+  console.log('model sales total', id_comercio)
+  const result = await db.query(
+    `SELECT *
+    FROM ventas v
+    JOIN publicaciones p ON v.id_publicacion = p.id
+    WHERE p.id_comercio = $1
+    ORDER BY v.timestamp DESC;`,
+    [id_comercio]
+  )
+  console.log('sales from model', result.rows)
+  return result.rows;
 }
 
 module.exports = { getAllSales, getSalesByOrderId, createSale, deleteSale, getTotalSalesByCommerceId }
