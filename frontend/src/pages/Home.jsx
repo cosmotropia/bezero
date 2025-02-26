@@ -16,10 +16,11 @@ const Home = () => {
   const carouselRef = useRef(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const dropdownRef = useRef(null)
-/*
+
   useEffect(() => {
     fetchPublications();
-  }, []);*/
+  }, [])
+
   useEffect(() => {
       function handleClickOutside(event) {
         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
