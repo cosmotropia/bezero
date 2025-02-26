@@ -48,6 +48,9 @@ const UserProvider = ({ children }) => {
         setRegisterError(userResponse.error)
         return;
       }
+      setToken(userResponse.token)
+      saveToken(userResponse.token)
+      setUser(userResponse.user)
       if(isCommerce){
           const commerceData = new FormData();
           commerceData.append("id_usuario", userResponse.user.id);
@@ -66,9 +69,6 @@ const UserProvider = ({ children }) => {
             return;
           }
       }
-      setToken(userResponse.token)
-      saveToken(userResponse.token)
-      setUser(userResponse.user)
       loadFavorites(userResponse.id)
       setRegisterError('')
     } 
