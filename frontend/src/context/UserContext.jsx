@@ -69,7 +69,7 @@ const UserProvider = ({ children }) => {
             return;
           }
       }
-      loadFavorites(userResponse.id)
+      loadFavorites(userResponse.user.id)
       setRegisterError('')
     } 
     catch (e) {
