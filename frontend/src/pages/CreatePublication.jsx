@@ -4,16 +4,18 @@ import { publicationValidations } from '../utils/validations';
 import { useContext, useState, useEffect } from 'react';
 import { CommerceContext } from '../context/CommerceContext';
 import { ApiContext } from '../context/ApiContext';
+import { DotLoader } from 'react-spinners';
 
 const CreatePublication = () => {
   const { register, handleSubmit, formState: { errors }, reset, watch } = useForm();
-  const { commerce, createNewPublication } = useContext(CommerceContext);
+  const { commerce, createNewPublication} = useContext(CommerceContext);
   const { categories, fetchPublications } = useContext(ApiContext);
   console.log('commerce from create publi',commerce)
   const [selectedCategory, setSelectedCategory] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [categoryId, setCategoryId] = useState(null);
+  const [loadingPub, setLoadingPub ] = useState(false);
 
   const today = new Date().toISOString().split('T')[0];
   const tomorrow = new Date();
@@ -69,10 +71,11 @@ const CreatePublication = () => {
         id_categoria: categoryId,
         id_comercio: commerce.id,
       };
-
+      setLoadingPub(true)
       console.log('Enviando publicación:', formattedData);
       await createNewPublication(formattedData);
       await fetchPublications();
+      setLoadingPub(false)
       alert('Publicación creada exitosamente');
       reset();
       setStartDate('');
@@ -210,14 +213,24 @@ const CreatePublication = () => {
             errors={errors}
           />
 
-          <div className="col-span-full flex justify-center">
-            <button
-              type="submit"
-              className="bg-black text-white py-2 px-6 rounded-lg font-bold hover:bg-gray-800"
-            >
-              Crear publicación
-            </button>
+        {loadingPub ? (
+          <div className="col-span-full flex flex-col items-center">
+            <DotLoader color="#166534" size={40} />
+            <p className="text-sm text-gray-700 mt-2">Creando publicación...</p>
           </div>
+        ) : (
+          <button
+            type="submit"
+            disabled={loadingPub}
+            className={`col-span-full py-2 rounded-lg font-bold ${
+              loadingPub
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-700 text-white hover:bg-green-800"
+            }`}
+          >
+            Crear publicacion
+          </button>
+        )}
 
         </form>
       </div>

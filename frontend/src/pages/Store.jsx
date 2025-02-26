@@ -63,8 +63,8 @@ const Store = () => {
   const resetFilters = () => {
     setFilters({
       categoryId: null,
-      pickupStart: null,
-      pickupEnd: null,
+      pickupStart: 0,
+      pickupEnd: 0,
       distance: null,
     });
     fetchPublications()

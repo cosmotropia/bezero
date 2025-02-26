@@ -9,6 +9,7 @@ const UserProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
   const [authError, setAuthError] = useState('');
   const [registerError, setRegisterError] = useState('');
+  const [loading, setLoading ] = useState(false);
 
   const saveToken = (token) => {
     localStorage.setItem('token', token);
@@ -69,6 +70,8 @@ const UserProvider = ({ children }) => {
             return;
           }
       }
+      
+      
       loadFavorites(userResponse.user.id)
       setRegisterError('')
     } 
@@ -136,6 +139,7 @@ const UserProvider = ({ children }) => {
         authError,
         registerError,
         favorites,
+        loading,
         handleLogin,
         handleRegister,
         toggleFavorite,

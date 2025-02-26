@@ -18,6 +18,7 @@ const CommerceProvider = ({ children }) => {
   const [publicaciones, setPublicaciones] = useState([]);
   const [notificaciones, setNotificaciones] = useState([]);
   const [loading, setLoading ] = useState(true);
+  
 
   const fetchCommerceData = useCallback(async (userId) => {
     try {

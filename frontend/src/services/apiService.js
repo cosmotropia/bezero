@@ -89,6 +89,7 @@ export const createCommerce = async (commerceData) => {
 }
 */
 export const createCommerce = async (formData) => {
+  console.log('form data from api service', formData);
   const response = await fetchWithAuth(`${API_URL}/commerces`, {
     method: "POST",
     body: formData,

@@ -30,6 +30,7 @@ const getCommerceByUserId = async (req, res) => {
 }
 
 const createCommerce = async (req, res) => {
+  console.log('create commerce req',req.body)
   try {
     const { nombre, rut, direccion, id_usuario } = req.body;
     if (!nombre || !rut || !direccion || !id_usuario) {
@@ -48,7 +49,7 @@ const createCommerce = async (req, res) => {
       url_img: imageUrl, 
       id_usuario 
     });
-
+    console.log('new commerce from controler model resp', newCommerce);
     res.status(201).json(newCommerce);
   } catch (error) {
     res.status(500).json({ error: 'Error al crear el comercio' });

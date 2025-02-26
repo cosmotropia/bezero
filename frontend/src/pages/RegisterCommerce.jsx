@@ -3,17 +3,19 @@ import { useContext } from 'react';
 import { UserContext } from '../context/UserContext';
 import FormField from '../components/FormField';
 import { registerValidations } from '../utils/validations';
+import { DotLoader } from 'react-spinners';
 
 const RegisterCommerce = () => {
   const {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm({
     mode: 'onChange',
   })
-  const { token, handleRegister, registerError } = useContext(UserContext);
+  const { token, handleRegister, registerError, loading } = useContext(UserContext);
 
   const onSubmit = async (data) => {
     try {
@@ -28,7 +30,8 @@ const RegisterCommerce = () => {
   
       await handleRegister(formData, true)
       if (!registerError && token) {
-        alert('Usuario registrado exitosamente');
+        alert('Usuario registrado exitosamente')
+        reset()
       }
     } catch (error) {
       alert("Error al registrar el comercio");
@@ -159,12 +162,24 @@ const RegisterCommerce = () => {
             </div>
           </div>
         }
-        <button
-          type="submit"
-          className="col-span-full bg-green-700 text-white py-2 rounded-lg font-bold hover:bg-green-800"
-        >
-          Registrar mi comercio
-        </button>
+        {loading ? (
+          <div className="col-span-full flex flex-col items-center">
+            <DotLoader color="#166534" size={40} />
+            <p className="text-sm text-gray-700 mt-2">Registrando comercio...</p>
+          </div>
+        ) : (
+          <button
+            type="submit"
+            disabled={loading}
+            className={`col-span-full py-2 rounded-lg font-bold ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-700 text-white hover:bg-green-800"
+            }`}
+          >
+            Registrar mi comercio
+          </button>
+        )}
       </form>
     </div>
   );
