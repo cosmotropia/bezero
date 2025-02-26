@@ -32,7 +32,6 @@ const getOrderByUserId = async (req, res) => {
 
 const createOrder = async (req, res) => {
   try {
-    console.log('Creando orden con datos:', req.body);
     const newOrder = await OrderModel.createOrder(req.body);
     res.status(201).json(newOrder);
   } catch (error) {

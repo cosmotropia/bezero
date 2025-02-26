@@ -16,6 +16,10 @@ const getPostSaleByUserId = async (id_usuario) => {
 }
 
 const createPostSale = async ({ id_venta, id_usuario ,calificacion, comentario }) => {
+  console.log('create post sale', id_usuario)
+  console.log(id_venta)
+  console.log(calificacion)
+  console.log(comentario)
   const result = await db.query(
     'INSERT INTO post_ventas (id_venta, id_usuario, calificacion, comentario) VALUES ($1, $2, $3, $4) RETURNING *',
     [id_venta, id_usuario, calificacion, comentario]

@@ -15,13 +15,13 @@ const RegisterType = () => {
         <div className="flex flex-col space-y-4">
           <button
             onClick={() => navigate("/register-user")}
-            className="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition"
+            className="w-full bg-green-800 text-white py-3 rounded-xl font-bold hover:bg-black transition"
           >
             Registrarme como Usuario
           </button>
           <button
             onClick={() => navigate("/register-commerce")}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition"
+            className="w-full bg-white border border-green-900 text-green-800 py-3 rounded-xl font-bold hover:bg-black hover:text-white transition"
           >
             Registrarme como Comercio
           </button>

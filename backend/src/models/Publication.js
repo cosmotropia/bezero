@@ -12,7 +12,7 @@ const getPublicationById = async (id) => {
 
 const getPublicationsByOrderId = async (id_oc) => {
   const query = `
-    SELECT p.id, p.nombre, p.descripcion, p.precio_actual, p.precio_estimado,
+    SELECT p.id, p.nombre, p.descripcion, p.precio_actual, p.precio_estimado, p.id_comercio,
            v.id, v.timestamp, v.id_oc
     FROM ventas v
     JOIN publicaciones p ON v.id_publicacion = p.id

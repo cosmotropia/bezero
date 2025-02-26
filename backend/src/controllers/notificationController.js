@@ -30,7 +30,6 @@ const markNotificationAsRead = async (req, res) => {
 
 const createNotification = async (req, res) => {
   try {
-    console.log(`Solicitud POST para crear notificación:`, req.body)
     const newNotification = await NotificationModel.createNotification(req.body)
     res.status(201).json(newNotification)
   } catch (error) {

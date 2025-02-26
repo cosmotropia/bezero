@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from "react";
+import { fetchLocationSuggestions, updateLocation, reverseGeocode } from "../services/apiService";
 
 export const LocationContext = createContext();
 
@@ -7,19 +8,22 @@ const LocationProvider = ({ children }) => {
     lat: -33.4372,
     lng: -70.6506,
     comuna: "Providencia, Santiago",
-  })
+  });
 
   const [suggestions, setSuggestions] = useState([]);
 
-  const fetchUserLocation = () => {
+  const fetchUserLocation = async () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords;
+
+          const { comuna } = await reverseGeocode(latitude, longitude);
+
           setLocation({
             lat: latitude,
             lng: longitude,
-            comuna: "Ubicación actual",
+            comuna, 
           });
         },
         () => {
@@ -29,44 +33,16 @@ const LocationProvider = ({ children }) => {
     }
   }
 
-  const fetchLocationSuggestions = async (query) => {
-    if (query.length < 3) {
+  const handleFetchLocationSuggestions = async (query) => {
+    const results = await fetchLocationSuggestions(query);
+    setSuggestions(results);
+  };
+
+  const handleUpdateLocation = async (comunaInput) => {
+    const newLocation = await updateLocation(comunaInput);
+    if (newLocation) {
+      setLocation(newLocation);
       setSuggestions([]);
-      return;
-    }
-  
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&countrycodes=CL&q=${encodeURIComponent(query)}`
-      );
-      const data = await response.json();
-      setSuggestions(data);
-    } catch (error) {
-      console.error("Error obteniendo sugerencias:", error);
-    }
-  }
-
-  const updateLocation = async (comunaInput) => {
-    if (!comunaInput.trim()) return;
-
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(comunaInput)}`
-      );
-      const data = await response.json();
-      if (data.length > 0) {
-        const { lat, lon, display_name } = data[0];
-        setLocation({
-          lat: parseFloat(lat),
-          lng: parseFloat(lon),
-          comuna: display_name,
-        });
-        setSuggestions([]);
-      } else {
-        console.warn("Ubicación no encontrada");
-      }
-    } catch (error) {
-      console.error("Error al buscar ubicación:", error);
     }
   };
 
@@ -80,8 +56,8 @@ const LocationProvider = ({ children }) => {
         location,
         setLocation,
         suggestions,
-        fetchLocationSuggestions,
-        updateLocation,
+        fetchLocationSuggestions: handleFetchLocationSuggestions,
+        updateLocation: handleUpdateLocation,
       }}
     >
       {children}

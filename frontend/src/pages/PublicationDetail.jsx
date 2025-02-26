@@ -1,9 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { MapPinIcon, ClockIcon, StarIcon } from '@heroicons/react/24/solid';
+import { MapPinIcon, ClockIcon, StarIcon, BuildingStorefrontIcon } from '@heroicons/react/24/solid';
 import { getFormattedPublications } from '../services/apiService';
 import { formatAmount } from '../utils/formatAmount';
 import { CartContext } from '../context/CartContext';
+import { DotLoader } from 'react-spinners';
 
 const PublicationDetail = () => {
   const { id } = useParams();
@@ -28,16 +29,20 @@ const PublicationDetail = () => {
     fetchPublication();
   }, [id]);
 
-  if (loading) return <p className="text-center py-10">Cargando publicación...</p>;
+  if (loading) return (<div className="flex flex-col justify-center items-center h-40">
+    <DotLoader color="#15803D" size={50} />
+    <p className="text-gray-600 mt-4">Cargando publicacion</p>
+  </div>);
   if (error) return <p className="text-center py-10 text-red-500">{error}</p>;
 
-  const { title, description, precio_actual, comercio, pickup } = publication;
-  console.log('publication detail',publication)
-  const handleAddToCart = () => {
+  const { title, description, precio_actual, comercio, pickup, activa } = publication;
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
     if (!publication) {
       alert('Error: No se pudo agregar la publicación al carrito.');
       return;
     }
+    if (!activa) return;
     addToCart(publication, quantity);
     alert(`"${title}" añadida al carrito.`);
   };
@@ -55,6 +60,10 @@ const PublicationDetail = () => {
         <div className="flex-1">
           <h2 className="text-3xl font-bold mb-2">{title}</h2>
           <p className="text-gray-700 mb-4">{description}</p>
+          <div className="text-gray-600 font-bold flex items-center space-x-2 mb-4">
+            <BuildingStorefrontIcon className="h-6 w-6 text-gray-800" />
+            <p>{comercio?.nombre || ''}</p>
+          </div>
           <div className="text-gray-600 flex items-center space-x-2 mb-4">
             <MapPinIcon className="h-6 w-6 text-gray-800" />
             <p>{comercio?.direccion || 'Dirección no disponible'}</p>
@@ -78,9 +87,14 @@ const PublicationDetail = () => {
             */}
             <p className="text-2xl font-bold">${formatAmount(precio_actual)}</p>
           </div>
-          <button
+          <button 
             onClick={handleAddToCart}
-            className="w-full mt-4 py-2 bg-green-800 text-white rounded-lg hover:bg-black"
+            disabled={!activa}
+            className={`w-full mt-4 py-2 rounded-lg transition ${
+              activa 
+                ? "bg-green-800 text-white hover:bg-black"
+                : "bg-gray-400 text-gray-700 cursor-not-allowed"
+            }`}
           >
             Agregar al carro
           </button>

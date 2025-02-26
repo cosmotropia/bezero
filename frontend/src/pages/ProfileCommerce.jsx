@@ -4,16 +4,17 @@ import { UserContext } from '../context/UserContext';
 import CommerceBanner from '../components/CommerceBanner';
 import { Link } from 'react-router-dom';
 import { EyeIcon, StarIcon } from '@heroicons/react/24/solid';
+import { DotLoader } from 'react-spinners';
 
 const CommerceProfile = () => {
-  const { commerce, ventasTotales, publicaciones, publicacionesActivas, fetchCommerceData, notificaciones } = useContext(CommerceContext);
+  const { commerce, ventasTotales, publicaciones, publicacionesActivas, fetchCommerceData, notificaciones, loading } = useContext(CommerceContext);
   const { user, getUser } = useContext(UserContext);
 
   useEffect(() => {
     if (!user) {
       getUser();
     }
-    if (user?.es_comercio && !commerce) {
+    if (!commerce && user?.es_comercio) {
       fetchCommerceData(user.id);
     }
   }, [user, commerce, fetchCommerceData, getUser]);
@@ -22,10 +23,10 @@ const CommerceProfile = () => {
     return <p className="text-center py-10">No tienes acceso a esta página.</p>;
   }
 
-  if (!commerce) {
-    return <p className="text-center py-10">Cargando datos del comercio...</p>;
-  }
-  console.log(ventasTotales)
+  if (loading) return (<div className="flex flex-col justify-center items-center h-40">
+    <DotLoader color="#15803D" size={50} />
+    <p className="text-gray-600 mt-4">Cargando datos del comercio...</p>
+  </div>);
   const unreadNotifications = notificaciones.filter((notif) => !notif.estado).length;
 
   return (

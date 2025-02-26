@@ -55,8 +55,6 @@ const CreatePublication = () => {
         alert('Error: No se encontró el comercio. Verifica tu perfil.');
         return;
       }
-
-      // **Validación del precio**
       const precioActual = parseFloat(data.precio_actual);
       const precioEstimado = parseFloat(data.precio_estimado);
       if (precioEstimado < precioActual) {

@@ -14,7 +14,6 @@ const getAllUsers = async (req, res) => {
 }
 
 const getUserById = async (req, res) => {
-  console.log('entra al get user by id')
   try {
     const user = await UserModel.getUserById(req.params.id)
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' })
@@ -28,13 +27,11 @@ const getUserProfile = async (req, res) => {
   try {
     const token = req.body
     const decoded = jwt.verify(token, JWT_SECRET);
-    console.log('decoded', decoded)
     const user = await UserModel.getUserById(decoded.id);
 
     if (!user) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-    console.log(user)
     res.status(200).json({
       id: user.id,
       email: user.email,

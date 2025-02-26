@@ -12,7 +12,7 @@ const getOrderById = async (id) => {
 
 const getOrderByUserId = async (id) => {
   const result = await db.query('SELECT * FROM ocs WHERE id_usuario = $1', [id])
-  return result.rows[0]
+  return result.rows;
 }
 
 const createOrder = async ({ userId, cart }) => {

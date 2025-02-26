@@ -3,13 +3,14 @@ import { ApiContext } from '../context/ApiContext';
 import ProductCard from '../components/ProductCard';
 import { FunnelIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
+import { DotLoader } from 'react-spinners';
 
 const Store = () => {
-  const { filteredPublications, categories, fetchPublications, filterPublications } = useContext(ApiContext);
+  const { filteredPublications, categories, fetchPublications, filterPublications, loading } = useContext(ApiContext);
   const [filters, setFilters] = useState({
     categoryId: null,
-    pickupStart: null,
-    pickupEnd: null,
+    pickupStart: 0,
+    pickupEnd: 0,
     distance: null,
   });
 
@@ -22,6 +23,7 @@ const Store = () => {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   const handleCategoryChange = (e) => {
+    console.log('category filter')
     const categoryId = e.target.value === 'all' ? null : parseInt(e.target.value);
     setFilters((prevFilters) => ({ ...prevFilters, categoryId }));
     filterPublications({ ...filters, categoryId });
@@ -32,12 +34,41 @@ const Store = () => {
     setFilters((prevFilters) => ({ ...prevFilters, pickupStart, pickupEnd }));
     filterPublications({ ...filters, pickupStart, pickupEnd });
   };
+  const handlePickupRangeChange = (e, type) => {
+    const value = parseInt(e.target.value);
+  
+    setFilters((prevFilters) => {
+      let newFilters = { ...prevFilters };
+  
+      if (type === "start") {
+        // Evita que la hora de inicio sea mayor que la de final
+        if(prevFilters.pickupEnd == 0)
+          prevFilters.pickupEnd = 24
+        newFilters.pickupStart = Math.min(value, prevFilters.pickupEnd - 1);
+      } else {
+        // Evita que la hora final sea menor que la de inicio
+        newFilters.pickupEnd = Math.max(value, prevFilters.pickupStart + 1);
+      }
+  
+      filterPublications(newFilters);
+      return newFilters;
+    });
+  }
 
   const handleDistanceChange = (e) => {
     const distance = parseInt(e.target.value);
     setFilters((prevFilters) => ({ ...prevFilters, distance }));
     filterPublications({ ...filters, distance });
-  };
+  }
+  const resetFilters = () => {
+    setFilters({
+      categoryId: null,
+      pickupStart: null,
+      pickupEnd: null,
+      distance: null,
+    });
+    fetchPublications()
+  }
 
   return (
     <div className="min-h-screen flex bg-white">
@@ -58,13 +89,41 @@ const Store = () => {
             </div>
 
             <div className="mb-6">
-              <label className="block mb-2 text-sm font-medium">Horario recogida</label>
-              <select onChange={handlePickupTimeChange} className="w-full border rounded-lg p-2">
-                <option value="">Todos los horarios</option>
-                <option value="18-21">Entre 18:00 y 21:00</option>
-                <option value="12-15">Entre 12:00 y 15:00</option>
-                <option value="8-11">Entre 8:00 y 11:00</option>
-              </select>
+              <label className="block mb-2 text-sm font-medium">Horario de recogida</label>
+              <p className="text-md text-gray-800 text-center">
+                {filters.pickupStart === 0 && filters.pickupEnd === 23
+                  ? "Todo el día"
+                  : `${String(filters.pickupStart).padStart(2, "0")}:00 - ${String(filters.pickupEnd).padStart(2, "0")}:00`}
+              </p>
+              <div className="relative flex items-center">
+                <input
+                  type="range"
+                  min="0"
+                  max="23"
+                  step="1"
+                  value={filters.pickupStart || 0}
+                  onChange={(e) => handlePickupRangeChange(e, 'start')}
+                  className="absolute w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max="23"
+                  step="1"
+                  value={filters.pickupEnd || 23}
+                  onChange={(e) => handlePickupRangeChange(e, 'end')}
+                  className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer"
+                />
+                <div className="w-full h-2 bg-gray-200 rounded-full relative">
+                  <div
+                    className="absolute h-2 bg-green-800 rounded-full"
+                    style={{
+                      left: `${(filters.pickupStart / 23) * 100}%`,
+                      right: `${100 - (filters.pickupEnd / 23) * 100}%`
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
             <div>
@@ -74,11 +133,22 @@ const Store = () => {
                 min="1"
                 max="20"
                 step="1"
-                value={filters.distance || 10}
+                value={filters.distance !== null ? filters.distance : 10}
                 onChange={handleDistanceChange}
-                className="w-full"
+                className="w-full appearance-none bg-gray-300 rounded-lg h-2 cursor-pointer 
+               accent-green-800"
               />
-              <p className="text-sm text-gray-700 mt-1">{filters.distance || 10} km</p>
+              <p className="text-sm text-gray-700 mt-1">
+                {filters.distance !== null ? `${filters.distance} km` : "Sin filtro de distancia"}
+              </p>
+            </div>
+            <div className="text-center mt-6">
+              <button
+                onClick={resetFilters}
+                className="w-full bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              >
+                Borrar filtros
+              </button>
             </div>
           </div>
         )}
@@ -91,7 +161,13 @@ const Store = () => {
             </button>
             <h2 className="text-xl font-bold">Publicaciones</h2>
           </div>
-          {filteredPublications.length > 0 ? (
+          {loading ? (
+            <div className="flex flex-col justify-center items-center h-40">
+              <DotLoader color="#15803D" size={50} />
+              <p className="text-gray-600 mt-4">Cargando publicaciones...</p>
+            </div>
+          ) :
+          filteredPublications.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {filteredPublications.map((publication) => (
                 <Link key={publication.id} to={`/publication/${publication.id}`} className="block hover:shadow-lg transition-shadow duration-300">

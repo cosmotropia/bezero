@@ -123,7 +123,7 @@ const RegisterUser = () => {
         }
         <button
           type="submit"
-          className="col-span-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700"
+          className="col-span-full bg-green-700 text-white py-2 rounded-lg font-bold hover:bg-green-800"
         >
           Registrarme
         </button>

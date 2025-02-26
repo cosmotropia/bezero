@@ -56,6 +56,57 @@ app.get('/', (req, res) => {
   res.status(200).json({ message: 'API is running...' })
 })
 
+app.get('/api/location', async (req, res) => {
+  console.log('api location from backend', req.query)
+  const { q } = req.query;
+  if (!q) {
+    return res.status(400).json({ error: "Se requiere una dirección de búsqueda" });
+  }
+
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`);
+    if (!response.ok) throw new Error("Error en la API de OpenStreetMap");
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener la ubicación" });
+  }
+})
+
+app.get('/api/geocode/reverse', async (req, res) => {
+  console.log('api geocode from backend', req.query);
+  try {
+    const { lat, lon } = req.query;
+
+    if (!lat || !lon) {
+      return res.status(400).json({ error: "Latitud y longitud son requeridas" });
+    }
+
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al obtener datos de geocodificación inversa");
+    }
+    const data = await response.json();
+    console.log('api geocode response from backend', data);
+
+    const comuna = data.address?.city || data.address?.town || data.address?.village || "Ubicación desconocida";
+    const region = data.address?.state || "";
+
+    return res.json({
+      comuna: region ? `${comuna}, ${region}` : comuna,
+      region,
+    });
+
+  } catch (error) {
+    console.error("Error en la geocodificación inversa:", error);
+    res.status(500).json({ error: "Error en la geocodificación inversa" });
+  }
+})
+
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), {
   setHeaders: (res) => {
     res.setHeader("Access-Control-Allow-Origin", "*"); 

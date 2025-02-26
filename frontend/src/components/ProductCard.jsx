@@ -6,7 +6,7 @@ import { formatAmount } from "../utils/formatAmount";
 import { HeartIcon, StarIcon } from "@heroicons/react/24/solid";
 import { UserContext } from "../context/UserContext";
 
-const ProductCard = ({ id, title, precio_actual, precio_estimado, comercio, pickup }) => {
+const ProductCard = ({ id, title, precio_actual, precio_estimado, comercio, pickup , activa}) => {
   const { location } = useContext(LocationContext);
   const { user, token, favorites, toggleFavorite } = useContext(UserContext);
   const navigate = useNavigate();
@@ -35,8 +35,8 @@ const ProductCard = ({ id, title, precio_actual, precio_estimado, comercio, pick
         <img
           src={comercio?.url_img}
           alt={title}
-          className="w-full h-36 object-cover"
-        />
+          className={`w-full h-36 object-cover transition ${!activa ? "grayscale opacity-70" : ""}`}
+        />  
         <button
           onClick={handleToggleFavorite}
           className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md"
@@ -45,10 +45,19 @@ const ProductCard = ({ id, title, precio_actual, precio_estimado, comercio, pick
             className={`h-6 w-6 transition ${isFavorite ? "text-red-500" : "text-gray-400"}`}
           />
         </button>
-        <div className="absolute top-3 left-3 bg-white px-2 py-1 rounded-full shadow-md flex items-center gap-1">
-          <StarIcon className="h-5 w-5 text-green-600" />
-          <span className="text-sm font-bold">{parseFloat(comercio?.calificacionPromedio).toFixed(1) || '0.0'}</span>
-        </div>
+        
+        {!activa ? (
+          <div className="absolute top-3 left-3 bg-green-800 px-2 py-1 rounded-full shadow-md flex items-center gap-1">
+          <span className="text-sm font-bold text-white">Agotado</span>
+          </div>
+        ) : (
+          <>
+            <div className="absolute top-3 left-3 bg-white px-2 py-1 rounded-full shadow-md flex items-center gap-1">
+              <StarIcon className="h-5 w-5 text-green-600" />
+              <span className="text-sm font-bold">{parseFloat(comercio?.calificacionPromedio).toFixed(1) || '0.0'}</span>
+            </div>
+          </>
+        )}
       </div>
       <div className="p-4">
         <h3 className="text-md font-bold text-gray-900">{comercio?.nombre || "Comercio desconocido"}</h3>

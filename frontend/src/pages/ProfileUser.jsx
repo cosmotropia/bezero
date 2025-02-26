@@ -25,11 +25,13 @@ const UserProfile = () => {
     saved: 0,
     orders: [],
   })
-  const [showOrders, setShowOrders] = useState(false)
-  const [showFavorites, setShowFavorites] = useState(false)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [evaluations, setEvaluations] = useState([])
-  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [showOrders, setShowOrders] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [evaluations, setEvaluations] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [pendingCommerces, setPendingCommerces] = useState([]);
+  const [currentCommerce, setCurrentCommerce] = useState(null);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
 
@@ -49,6 +51,7 @@ const UserProfile = () => {
         })
         const evaluationsData = await getPostSalesByUserId(user.id);
         setEvaluations(evaluationsData)
+        console.log(evaluationsData)
         if (favorites.length > 0) {
           try {
             const favoritesWithCommerce = await Promise.all(
@@ -90,28 +93,55 @@ const UserProfile = () => {
   const toggleFavorites = () => {
     setShowFavorites(!showFavorites)
   }
+  
   const openModal = (order) => {
-    setSelectedOrder(order);
-    setModalOpen(true);
+    const commercesToEvaluate = order.items.filter(item =>
+      !evaluations.some(evaluation => evaluation.id_venta === order.id_venta && evaluation.id_comercio === item.id_comercio)
+    );
+    
+    if (commercesToEvaluate.length > 0) {
+      setSelectedOrder(order);
+      setPendingCommerces(commercesToEvaluate);
+      setCurrentCommerce(commercesToEvaluate[0]);
+      setModalOpen(true);
+    }
   };
 
   const closeModal = () => {
     setModalOpen(false);
     setSelectedOrder(null);
+    setPendingCommerces([]);
+    setCurrentCommerce(null);
     setRating(0);
     setComment("");
   };
 
   const submitReview = async () => {
-    if (!selectedOrder) return;
+    if (!currentCommerce) return;
+
     try {
-      await createPostVenta(selectedOrder.id_venta, selectedOrder.id_usuario, rating, comment);
-      setEvaluations([...evaluations, { id_venta: selectedOrder.id_venta, id_usuario: selectedOrder.id_usuario, calificacion: rating, comentario: comment }]);
-      closeModal();
+      // Guarda la evaluación inmediatamente
+      await createPostVenta(currentCommerce.id_publicacion, user.id, rating, comment);
+      
+      // Agrega la evaluación al estado
+      setEvaluations(prev => [...prev, { id_venta: selectedOrder.id_venta, id_comercio: currentCommerce.id_comercio, calificacion: rating, comentario: comment }]);
+
+      // Avanza al siguiente comercio
+      const remainingCommerces = pendingCommerces.slice(1);
+      setPendingCommerces(remainingCommerces);
+
+      if (remainingCommerces.length > 0) {
+        setCurrentCommerce(remainingCommerces[0]);
+        setRating(0);
+        setComment("");
+      } else {
+        closeModal(); // Cierra el modal si ya se evaluaron todos los comercios
+      }
     } catch (error) {
       console.error("Error al enviar evaluación:", error);
     }
   }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       <div className="container mx-auto px-4 py-8 flex-grow">
@@ -189,7 +219,7 @@ const UserProfile = () => {
                     <ul className="mt-2 space-y-2">
                       {order.items.map((item, idx) => (
                         <li key={idx} className="text-sm text-gray-700">
-                          {item.title} - <b>Cantidad:</b> {item.quantity} - <b>Precio pagado:</b> ${item.precio_pagado}
+                          {item.title} - <b>Cantidad:</b> {item.quantity} - <b>Precio pagado:</b> ${formatAmount(item.precio_pagado)}
                         </li>
                       ))}
                     </ul>
@@ -198,7 +228,7 @@ const UserProfile = () => {
                       {evaluation ? (
                         <div className="text-green-700 flex items-center space-x-1">
                           <StarIcon className="h-6 w-6 text-yellow-500" />
-                          <span className="font-semibold">{evaluation.calificacion}/5</span>
+                          <span className="font-semibold">{parseFloat(evaluation.calificacion).toFixed(1)}/5</span>
                           <p className="text-sm text-gray-600 italic">"{evaluation.comentario}"</p>
                         </div>
                       ) : (
@@ -229,7 +259,8 @@ const UserProfile = () => {
               )}
             </div>
           )}
-          <Modal title="Evaluar Pedido" isOpen={modalOpen} onClose={closeModal} onConfirm={submitReview} confirmText="Enviar Evaluación">
+          <Modal title={`Evaluar Comercio ${currentCommerce?.id_comercio || ""}`} isOpen={modalOpen} onClose={closeModal} onConfirm={submitReview} confirmText="Siguiente">
+            <p className="text-center text-gray-700">{currentCommerce?.title || "Cargando..."}</p>
             <div className="flex items-center justify-center space-x-2 mb-4">
               {[1, 2, 3, 4, 5].map((num) => (
                 <StarIcon key={num} className={`h-8 w-8 cursor-pointer ${rating >= num ? "text-yellow-500" : "text-gray-300"}`} onClick={() => setRating(num)} />

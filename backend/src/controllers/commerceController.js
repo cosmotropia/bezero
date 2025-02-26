@@ -30,7 +30,6 @@ const getCommerceByUserId = async (req, res) => {
 }
 
 const createCommerce = async (req, res) => {
-  console.log('create commerce req',req.body)
   try {
     const { nombre, rut, direccion, id_usuario } = req.body;
     if (!nombre || !rut || !direccion || !id_usuario) {

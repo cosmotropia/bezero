@@ -12,32 +12,62 @@ import {
     EyeIcon
 } from "@heroicons/react/24/outline"
 import { MdOutlineRecycling } from "react-icons/md";
-import { useContext, useState, useEffect } from "react"
+import { useRef, useContext, useState, useEffect } from "react"
 import { LocationContext } from "../context/LocationContext"
 import { UserContext } from "../context/UserContext"
 import { CartContext } from "../context/CartContext"
 import { CommerceContext } from "../context/CommerceContext"
 
 const Navbar = () => {
-  const { location, suggestions, fetchLocationSuggestions, updateLocation } = useContext(LocationContext);
+  const { location, suggestions, fetchLocationSuggestions } = useContext(LocationContext);
   const { token, handleLogout, user, getUser } = useContext(UserContext);
   const { cart } = useContext(CartContext);
-  const { notificaciones, asyncNotificationsByUser } = useContext(CommerceContext);
+  const { notificaciones, fetchCommerceData } = useContext(CommerceContext);
   const [menuOpen, setMenuOpen] = useState(false);
   const [comunaInput, setComunaInput] = useState(location?.comuna || "");
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const dropdownRef = useRef(null)
+
+  useEffect(() => {
+    setComunaInput(location.comuna)
+  }, [location.comuna])
 
   useEffect(() => {
     if (!user) {
       getUser();
     }
-  }, [user, getUser]);
-
+    if (user?.es_comercio){
+      fetchCommerceData(user.id)
+    }
+  }, [user, getUser, fetchCommerceData]);
+/*
   useEffect(() => {
     if (user?.es_comercio && user?.id) {
       asyncNotificationsByUser(user.id);
     }
-  }, []);
+  }, [])*/
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        setShowSuggestions(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [])
 
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -77,23 +107,33 @@ const Navbar = () => {
             <span>Tienda</span>
           </Link>
 
-          <div className="relative flex items-center bg-white shadow-md rounded-lg px-3 py-2">
+          <div ref={dropdownRef} className="relative flex items-center bg-white shadow-md rounded-lg px-3 py-2 w-full max-w-xs md:max-w-sm">
             <MapPinIcon className="h-5 w-5 text-green-900" />
             <input
               type="text"
               value={comunaInput}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                handleInputChange(e);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
               className="border-0 outline-none px-2 text-sm w-40 md:w-64 bg-transparent"
               placeholder="Ej: Providencia, Santiago"
             />
-            <MagnifyingGlassIcon className="h-5 w-5 text-green-900 cursor-pointer" onClick={() => updateLocation(comunaInput)} />
-            {suggestions.length > 0 && (
-              <ul className="absolute left-0 right-0 bg-white shadow-lg rounded-lg mt-1 z-50 max-h-48 overflow-y-auto">
+            <MagnifyingGlassIcon
+              className="h-5 w-5 text-green-900 cursor-pointer"
+              onClick={() => setShowSuggestions(false)}
+            />
+            {showSuggestions && suggestions.length > 0 && (
+              <ul className="absolute left-0 w-full bg-white shadow-lg rounded-lg top-full mt-1 z-50 max-h-60 overflow-y-auto border border-gray-300">
                 {suggestions.map((suggestion) => (
                   <li
                     key={suggestion.place_id}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className="px-3 py-2 cursor-pointer hover:bg-gray-200"
+                    onClick={() => {
+                      handleSuggestionClick(suggestion);
+                      setShowSuggestions(false);
+                    }}
+                    className="px-3 py-2 cursor-pointer hover:bg-gray-200 truncate"
                   >
                     {suggestion.display_name}
                   </li>

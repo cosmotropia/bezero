@@ -2,7 +2,6 @@ const FavoriteModel = require('../models/Favorite')
 
 const getFavoritesByUserId = async (req, res) => {
   try {
-    console.log('favorites controller',req.params.id_usuario )
     const favorites = await FavoriteModel.getFavoritesByUserId(req.params.id_usuario)
     res.status(200).json(favorites)
   } catch (error) {

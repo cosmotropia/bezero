@@ -39,7 +39,7 @@ function App() {
           <Route path="/store" element={<Store />} />
           <Route path="/register-commerce" element={<RegisterCommerce />} />
           <Route path="/register-user" element={<RegisterUser />} />
-          <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/login" element={!token ? <Login /> : <Navigate to="/" />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/profile-commerce" element={token ? <ProfileCommerce/> : <Navigate to="/login" /> }/>

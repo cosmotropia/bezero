@@ -1,19 +1,55 @@
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useContext, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MapPinIcon, BanknotesIcon, GlobeAltIcon, BuildingStorefrontIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import ProductCard from '../components/ProductCard';
 import InfoCard from '../components/InfoCard';
 import { ApiContext } from '../context/ApiContext';
+import { LocationContext } from '../context/LocationContext';
+import { DotLoader } from 'react-spinners';
+
 
 const Home = () => {
-  const {publications, fetchPublications, categories } = useContext(ApiContext);
+  const {publications, fetchPublications, categories, loading } = useContext(ApiContext);
+  const { location, suggestions, fetchLocationSuggestions, updateLocation } = useContext(LocationContext);
   const [comunaInput, setComunaInput] = useState('');
   const navigate = useNavigate();
   const carouselRef = useRef(null);
-
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const dropdownRef = useRef(null)
+/*
   useEffect(() => {
     fetchPublications();
-  }, []);
+  }, []);*/
+  useEffect(() => {
+      function handleClickOutside(event) {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+          setShowSuggestions(false);
+        }
+      }
+  
+      function handleKeyDown(event) {
+        if (event.key === "Escape") {
+          setShowSuggestions(false);
+        }
+      }
+  
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }, [])
+  
+    const handleInputChange = (e) => {
+      const value = e.target.value;
+      setComunaInput(value);
+      fetchLocationSuggestions(value);
+    };
+  
+    const handleSuggestionClick = (suggestion) => {
+      setComunaInput(suggestion.display_name);
+    };
 
   const handleSearch = () => {
     const searchQuery = comunaInput.trim();
@@ -41,24 +77,50 @@ const Home = () => {
         <div className="absolute inset-0 bg-black opacity-65"></div>
 
         <div className="relative container mx-auto flex flex-col md:flex-row items-center">
-          <div className="md:w-1/2 mb-8 md:mb-0 flex flex-col items-center md:items-start">
-            <div className="flex items-center bg-white shadow-md rounded-lg overflow-hidden w-full max-w-md">
-              <MapPinIcon className="h-5 w-5 text-green-700 ml-2" />
-              <input
-                type="text"
-                value={comunaInput}
-                onChange={(e) => setComunaInput(e.target.value)}
-                className="flex-grow p-3 border-none focus:outline-none"
-                placeholder="Ingresa un sector o dirección"
-              />
-              <button
-                onClick={handleSearch}
-                className="bg-green-700 text-white rounded-lg px-3 py-2 mr-1 hover:bg-green-900 flex items-center"
+        <div className="md:w-1/2 mb-8 md:mb-0 flex flex-col items-center md:items-start">
+      <div ref={dropdownRef} className="relative w-full max-w-md">
+        <div className="flex items-center bg-white shadow-md rounded-lg overflow-hidden w-full">
+          <MapPinIcon className="h-5 w-5 text-green-700 ml-2" />
+          <input
+            type="text"
+            value={comunaInput}
+            onChange={(e) => {
+              setComunaInput(e.target.value);
+              fetchLocationSuggestions(e.target.value);
+              setShowSuggestions(true);
+            }}
+            onFocus={() => setShowSuggestions(true)}
+            className="flex-grow p-3 border-none focus:outline-none"
+            placeholder="Ingresa un sector o dirección"
+          />
+          <button
+            onClick={handleSearch}
+            className="bg-green-700 text-white rounded-lg px-3 py-2 mr-1 hover:bg-green-900 flex items-center"
+          >
+            Buscar
+          </button>
+        </div>
+
+        {/* Lista de sugerencias corregida */}
+        {showSuggestions && suggestions.length > 0 && (
+          <ul className="absolute left-0 w-full bg-white shadow-lg rounded-lg top-full mt-1 z-50 max-h-60 overflow-y-auto border border-gray-300">
+            {suggestions.map((suggestion) => (
+              <li
+                key={suggestion.place_id}
+                onClick={() => {
+                  setComunaInput(suggestion.display_name);
+                  setShowSuggestions(false);
+                  updateLocation(suggestion.display_name);
+                }}
+                className="px-3 py-2 cursor-pointer hover:bg-gray-200 truncate"
               >
-                Buscar
-              </button>
-            </div>
-          </div>
+                {suggestion.display_name}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
 
           <div className="md:w-1/2 text-center md:text-left">
             <h1 className="text-5xl font-bold mb-4 text-white">Disfruta más, desperdicia menos</h1>
@@ -119,7 +181,13 @@ const Home = () => {
         <div className="container mx-auto">
           <h2 className="text-2xl font-bold mb-4">Recomendados</h2>
           <p className="text-gray-600 mb-6">Disfruta de estos productos cerca tuyo</p>
-          {publications.length > 0 ? (
+          {loading ? (
+            <div className="flex flex-col justify-center items-center h-40">
+              <DotLoader color="#15803D" size={50} />
+              <p className="text-gray-600 mt-4">Cargando publicaciones...</p>
+            </div>
+          ) :
+          publications.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {publications.map((publication) => (
                 <Link key={publication.id} to={`/publication/${publication.id}`} className="block hover:shadow-lg transition-shadow duration-300">
@@ -129,8 +197,7 @@ const Home = () => {
             </div>
           ) : (
             <div className="col-span-full text-center">
-              <h3 className="text-lg font-medium text-gray-600">No hay publicaciones disponibles.</h3>
-              <p className="text-sm text-gray-500">Por favor, verifica los filtros o vuelve más tarde.</p>
+              <h3 className="text-lg font-medium text-gray-600">No hay publicaciones disponibles</h3>
             </div>
           )}
         </div>

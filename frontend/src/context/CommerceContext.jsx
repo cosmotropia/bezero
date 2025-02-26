@@ -17,6 +17,7 @@ const CommerceProvider = ({ children }) => {
   const [publicacionesActivas, setPublicacionesActivas] = useState([]);
   const [publicaciones, setPublicaciones] = useState([]);
   const [notificaciones, setNotificaciones] = useState([]);
+  const [loading, setLoading ] = useState(true);
 
   const fetchCommerceData = useCallback(async (userId) => {
     try {
@@ -30,6 +31,8 @@ const CommerceProvider = ({ children }) => {
       refreshCommerceData(commerceData.id)
     } catch (error) {
       console.error('Error obteniendo datos del comercio:', error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -43,17 +46,17 @@ const CommerceProvider = ({ children }) => {
       ]);
 
       setVentasTotales(ventasTotales);
-      console.log('ventas from context', ventasTotales);
       setPublicacionesActivas(publicacionesActivas);
       setPublicaciones(publicaciones);
       setNotificaciones(notificaciones)
     } catch (error) {
       console.error('Error actualizando publicaciones del comercio:', error);
+    } finally {
+      setLoading(false);
     }
   };
   const asyncNotificationsByUser = async (userId) => {
     try {
-      console.log('buscando notificaciones')
       const commerceData = await getCommerceByUserId(userId)
       const notifications = await getPublicationsByCommerceId(commerceData.id)
       setNotificaciones(notifications)
@@ -90,6 +93,7 @@ const CommerceProvider = ({ children }) => {
       publicacionesActivas, 
       publicaciones, 
       notificaciones,
+      loading,
       fetchCommerceData,
       createNewPublication,
       markNotification,

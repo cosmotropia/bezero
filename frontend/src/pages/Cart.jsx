@@ -1,6 +1,7 @@
 import { useContext } from 'react'
 import { CartContext } from '../context/CartContext'
 import { Link } from 'react-router-dom'
+import { formatAmount } from '../utils/formatAmount'
 
 const Cart = () => {
   const { cart, removeFromCart, updateQuantity, checkout } = useContext(CartContext)
@@ -28,7 +29,7 @@ const Cart = () => {
                   <div>
                     <h3 className="text-lg font-bold">{item.comercio.nombre}</h3>
                     <p className="text-gray-700">{item.title}</p>
-                    <p className="text-gray-800 font-bold">${item.precio_actual.toLocaleString()}</p>
+                    <p className="text-gray-800 font-bold">${formatAmount(item.precio_actual)}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -59,17 +60,17 @@ const Cart = () => {
               </div>
             ))}
             <div className="flex justify-between items-center mt-6">
-              <p className="text-lg font-bold">Total: ${calculateTotal().toLocaleString()}</p>
+              <p className="text-lg font-bold">Total: ${formatAmount(calculateTotal())}</p>
               <div className="flex space-x-4">
                 <button
                   onClick={checkout}
-                  className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+                  className="bg-green-800 text-white px-4 py-2 rounded-xl hover:bg-black hover:border-0"
                 >
                   Ir al pago
                 </button>
                 <Link
                   to="/store"
-                  className="border border-gray-300 px-4 py-2 rounded hover:bg-gray-200"
+                  className="border border-green-800 px-4 py-2 rounded-xl text-green-900 hover:bg-black hover:text-white hover:border-0"
                 >
                   Volver a la tienda
                 </Link>

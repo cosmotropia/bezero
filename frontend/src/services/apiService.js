@@ -247,7 +247,7 @@ export const getCommerceLocation = async (direccion) => {
     const auxLocation = { lat: -33.4254, lng: -70.6063 } // Centro de Providencia, Santiago
     try {
         const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccion)}`
+            `${API_URL}/location?q=${encodeURIComponent(direccion)}`
         );
 
         if (!response.ok) throw new Error('Error al obtener la ubicación del comercio');
@@ -306,7 +306,11 @@ export const getFormattedPublications = async (id = null) => {
               url_img: comercio?.url_img || '/dummy-img.png',
             },
             categoria: categoria?.nombre || 'Sin categoría',
+            id_categoria: categoria?.id,
             pickup: recogidaText,
+            hr_ini: pub.hr_ini,
+            hr_end: pub.hr_end,
+            activa: pub.activa
           };
         } catch (error) {
           console.error(`Error al obtener detalles de la publicación ${pub.id}:`, error);
@@ -453,6 +457,7 @@ export const getVentasByUserId = async (userId) => {
   }
 
   let orders = await response.json();
+  console.log('orders from apiservice', orders)
   if (!Array.isArray(orders)) {
     orders = [orders];
   }
@@ -479,6 +484,8 @@ export const getVentasByUserId = async (userId) => {
       }
 
       const items = publications.map((publication) => ({
+        id_publicacion: publication.id,
+        id_comercio: publication.id_comercio,
         title: publication.nombre,
         precio_real: publication.precio_estimado,
         precio_pagado: publication.precio_actual,
@@ -592,4 +599,56 @@ export const markNotificationAsRead = async (notificationId) => {
   return response.json();
 }
 
-  
+//LOCATION STUFFS
+export const fetchLocationSuggestions = async (query) => {
+  if (query.length < 3) return [];
+
+  try {
+    const response = await fetchWithAuth(`${API_URL}/location?q=${encodeURIComponent(query)}`);
+    if (!response.ok) throw new Error("Error obteniendo sugerencias de ubicación");
+    
+    return response.json();
+  } catch (error) {
+    console.error("Error obteniendo sugerencias:", error);
+    return [];
+  }
+};
+
+export const updateLocation = async (comunaInput) => {
+  if (!comunaInput.trim()) return null;
+
+  try {
+    const response = await fetchWithAuth(`${API_URL}/location?q=${encodeURIComponent(comunaInput)}`);
+    if (!response.ok) throw new Error("Error obteniendo ubicación");
+
+    const data = await response.json();
+    if (data.length > 0) {
+      return {
+        lat: parseFloat(data[0].lat),
+        lng: parseFloat(data[0].lon),
+        comuna: data[0].display_name,
+      };
+    }
+    
+    console.warn("Ubicación no encontrada");
+    return null;
+  } catch (error) {
+    console.error("Error al buscar ubicación:", error);
+    return null;
+  }
+}
+
+export const reverseGeocode = async (lat, lon) => {
+  try {
+    const response = await fetchWithAuth(
+      `${API_URL}/geocode/reverse?lat=${lat}&lon=${lon}`
+    );
+
+    if (!response.ok) throw new Error("Error en la geocodificación inversa");
+
+    return response.json();
+  } catch (error) {
+    console.error("Error al obtener ubicación inversa:", error);
+    return { comuna: "Ubicación desconocida", region: "" };
+  }
+}

@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from 'react';
 import { getCategories, getFormattedPublications } from '../services/apiService';
+import { calcularDistancia } from '../utils/calcDistance'
 
 export const ApiContext = createContext();
 
@@ -7,6 +8,8 @@ const ApiProvider = ({ children }) => {
   const [publications, setPublications] = useState([]);
   const [filteredPublications, setFilteredPublications] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [userLocation, setUserLocation] = useState(null);
+  const [loading, setLoading ] = useState(true);
 
   const categoryImages = {
     "Alimentos": "/categories/ico-abastecimiento-01.png",
@@ -31,8 +34,51 @@ const ApiProvider = ({ children }) => {
       setFilteredPublications(data);
     } catch (error) {
       console.error('Error al obtener publicaciones:', error);
+    } finally {
+      setLoading(false);
     }
   };
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        () => {
+          console.warn("No se pudo obtener la ubicación, usando la ubicación por defecto.");
+          setUserLocation(null);
+        }
+      );
+    }
+  }
+  const filterPublications = (filters) => {
+    let filtered = publications;
+  
+    if (filters.categoryId) {
+      filtered = filtered.filter((pub) => pub.id_categoria === filters.categoryId);
+    }
+  
+    if (filters.pickupStart !== null && filters.pickupEnd !== null) {
+      filtered = filtered.filter((pub) => {
+        const hourIni = parseInt(pub.hr_ini.split(":")[0], 10);
+        const hourEnd = parseInt(pub.hr_end.split(":")[0], 10);
+        return hourIni >= filters.pickupStart && hourEnd <= filters.pickupEnd;
+      });
+    }
+  
+    if (filters.distance && userLocation) {
+      filtered = filtered.filter((pub) => {
+        if (!pub.latitud || !pub.longitud) return false;
+        const distance = calcularDistancia(userLocation.lat, userLocation.lng, pub.latitud, pub.longitud);
+        return distance <= filters.distance;
+      });
+    }
+  
+    setFilteredPublications(filtered);
+  }
 
   const fetchInitialData = async () => {
     try {
@@ -46,15 +92,24 @@ const ApiProvider = ({ children }) => {
       await fetchPublications();
     } catch (error) {
       console.error('Error al obtener datos:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchInitialData();
+    getUserLocation();
   }, []);
 
   return (
-    <ApiContext.Provider value={{ publications, filteredPublications, categories, fetchPublications }}>
+    <ApiContext.Provider value={{ 
+      publications, 
+      filteredPublications, 
+      categories, 
+      loading,
+      fetchPublications, 
+      filterPublications }}>
       {children}
     </ApiContext.Provider>
   );
