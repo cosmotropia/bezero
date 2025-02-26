@@ -41,16 +41,6 @@ const Home = () => {
         document.removeEventListener("keydown", handleKeyDown);
       };
     }, [])
-  
-    const handleInputChange = (e) => {
-      const value = e.target.value;
-      setComunaInput(value);
-      fetchLocationSuggestions(value);
-    };
-  
-    const handleSuggestionClick = (suggestion) => {
-      setComunaInput(suggestion.display_name);
-    };
 
   const handleSearch = () => {
     const searchQuery = comunaInput.trim();
@@ -101,8 +91,6 @@ const Home = () => {
             Buscar
           </button>
         </div>
-
-        {/* Lista de sugerencias corregida */}
         {showSuggestions && suggestions.length > 0 && (
           <ul className="absolute left-0 w-full bg-white shadow-lg rounded-lg top-full mt-1 z-50 max-h-60 overflow-y-auto border border-gray-300">
             {suggestions.map((suggestion) => (

@@ -74,8 +74,8 @@ const PublicationDetail = () => {
             <p>{pickup}</p>
           </div>
           <div className="flex items-center space-x-1 mb-4">
-            <StarIcon className="h-6 w-6 text-green-600" />
-            <p className="font-medium">{comercio?.rating || '0.0'}</p>
+            <StarIcon className="h-6 w-6 text-green-800" />
+            <p className="font-medium">{comercio?.calificacionPromedio || '0.0'}</p>
           </div>
           <div className="flex items-center justify-between border-t pt-4">
             {/*
@@ -93,7 +93,7 @@ const PublicationDetail = () => {
             className={`w-full mt-4 py-2 rounded-lg transition ${
               activa 
                 ? "bg-green-800 text-white hover:bg-black"
-                : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                : "bg-gray-400 text-gray-700 cursor-not-allowed text-white"
             }`}
           >
             Agregar al carro
